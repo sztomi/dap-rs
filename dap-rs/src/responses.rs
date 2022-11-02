@@ -534,11 +534,11 @@ pub struct Response {
   /// Values:
   /// 'cancelled': request was cancelled.
   /// etc.
-  pub message: ResponseMessage,
+  pub message: Option<ResponseMessage>,
   /// Contains request result if success is true and error details if success is
   /// false.
-  #[serde(flatten)]
-  pub body: ResponseBody,
+  #[serde(flatten, skip_serializing_if = "Option::is_none")]
+  pub body: Option<ResponseBody>,
 }
 
 impl Response {
