@@ -1,6 +1,7 @@
 use serde::Serialize;
 
 use crate::{
+  requests::Request,
   types::{
     Breakpoint, BreakpointLocation, Capabilities, CompletionItem, DataBreakpointAccessType,
     DisassembledInstruction, ExceptionBreakMode, ExceptionDetails, GotoTarget, Module, Scope,
@@ -541,17 +542,43 @@ pub struct Response {
 }
 
 impl Response {
-  pub fn new(
-    request_seq: i64,
-    success: bool,
-    message: ResponseMessage,
-    body: ResponseBody,
-  ) -> Self {
+  /// Create a successful response for a given request. The sequence number will be copied
+  /// from `request`, `message` will be `None` (as its neither cancelled nor an error).
+  /// The `body` argument contains the response itself.
+  pub fn make_success(request: &Request, body: ResponseBody) -> Self {
     Self {
-      request_seq,
-      success,
-      message,
-      body,
+      request_seq: request.seq,
+      success: true,
+      message: None,
+      body: Some(body), // to love
+    }
+  }
+
+  /// Create an error response for a given request. The sequence number will be copied
+  /// from the request, `message` will be `None` (as its neither cancelled nor an error).
+  ///
+  /// ## Arguments
+  ///
+  ///   * `req`: The request this response corresponds to.
+  ///   * `body`: The body of the response to attach.
+  pub fn make_error(req: &Request, error: &str) -> Self {
+    Self {
+      request_seq: req.seq,
+      success: false,
+      message: Some(ResponseMessage::Error(error.to_string())),
+      body: None
+    }
+  }
+
+  /// Create a cancellation response for the given request. The sequence number will be copied
+  /// from the request, message will be [`ResponseMessage::Cancelled`], `success` will be false,
+  /// and `body` will be `None`.
+  pub fn make_cancel(req: &Request) -> Self {
+    Self {
+      request_seq: req.seq,
+      success: false,
+      message: Some(ResponseMessage::Cancelled),
+      body: None
     }
   }
 }
