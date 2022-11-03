@@ -4,6 +4,8 @@ pub mod macros;
 pub mod requests;
 pub mod responses;
 pub mod types;
+pub mod adapter;
+pub mod client;
 
 /*
 use responses::ResponseMessage;
