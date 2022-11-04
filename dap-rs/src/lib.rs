@@ -6,6 +6,7 @@ pub mod responses;
 pub mod types;
 pub mod adapter;
 pub mod client;
+pub mod server;
 
 /*
 use responses::ResponseMessage;
