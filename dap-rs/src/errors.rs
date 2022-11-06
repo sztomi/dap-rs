@@ -11,6 +11,21 @@ pub enum ServerError {
   #[error("I/O error")]
   IoError,
 
+  #[error("Unknown header: {header}")]
+  UnknownHeader { header: String },
+
   #[error("Parse error")]
-  ParseError,
+  ParseError(#[from] DeserializationError),
+
+  #[error("Could not parse header line '{line}'")]
+  HeaderParseError { line: String },
+
+  #[error("Protocol error while reading line '{line}', reason: '{reason}'")]
+  ProtocolError { reason: String, line: String },
+}
+
+#[derive(Debug, Error)]
+pub enum AdapterError {
+  #[error("Trying to contruct a non-sense response (such as an ACK for a request that requires a response body")]
+  ResponseContructError,
 }
