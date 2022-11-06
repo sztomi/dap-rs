@@ -114,6 +114,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "dap-rs"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "serde",
+ "serde-aux",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
+name = "dummy-server"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "dap-rs",
+ "log",
+]
+
+[[package]]
 name = "iana-time-zone"
 version = "0.1.53"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -282,17 +302,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-ident",
-]
-
-[[package]]
-name = "tacmad"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "serde",
- "serde-aux",
- "serde_json",
- "thiserror",
 ]
 
 [[package]]

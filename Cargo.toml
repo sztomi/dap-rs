@@ -1,2 +1,2 @@
 [workspace]
-members = ["dap-rs"]
+members = ["dap-rs", "dummy-server"]
