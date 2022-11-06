@@ -1,12 +1,12 @@
 use serde::Serialize;
 
 use crate::{
-  requests::Request,
+  requests::{Command, Request},
   types::{
     Breakpoint, BreakpointLocation, Capabilities, CompletionItem, DataBreakpointAccessType,
     DisassembledInstruction, ExceptionBreakMode, ExceptionDetails, GotoTarget, Module, Scope,
     Source, StackFrame, Thread, Variable, VariablePresentationHint,
-  },
+  }, errors::AdapterError,
 };
 
 /// Represents a response messagte that is either a cancellation or a short error string.
@@ -566,7 +566,7 @@ impl Response {
       request_seq: req.seq,
       success: false,
       message: Some(ResponseMessage::Error(error.to_string())),
-      body: None
+      body: None,
     }
   }
 
@@ -578,7 +578,105 @@ impl Response {
       request_seq: req.seq,
       success: false,
       message: Some(ResponseMessage::Cancelled),
-      body: None
+      body: None,
+    }
+  }
+
+  /// Create an acknowledgement response. This is a shorthand for responding to requests
+  /// where the response does not require a body.
+  pub fn make_ack(req: &Request) -> Result<Self, AdapterError>  {
+    match req.command {
+      Command::Attach(_) => Ok(Self {
+        request_seq: req.seq,
+        success: true,
+        message: None,
+        body: Some(ResponseBody::Attach),
+      }),
+      Command::ConfigurationDone => Ok(Self {
+        request_seq: req.seq,
+        success: true,
+        message: None,
+        body: Some(ResponseBody::ConfigurationDone),
+      }),
+      Command::Disconnect(_) => Ok(Self {
+        request_seq: req.seq,
+        success: true,
+        message: None,
+        body: Some(ResponseBody::Disconnect),
+      }),
+      Command::Goto(_) => Ok(Self {
+        request_seq: req.seq,
+        success: true,
+        message: None,
+        body: Some(ResponseBody::Goto),
+      }),
+      Command::Launch(_) => Ok(Self {
+        request_seq: req.seq,
+        success: true,
+        message: None,
+        body: Some(ResponseBody::Launch),
+      }),
+      Command::Next(_) => Ok(Self {
+        request_seq: req.seq,
+        success: true,
+        message: None,
+        body: Some(ResponseBody::Next),
+      }),
+      Command::Pause(_) => Ok(Self {
+        request_seq: req.seq,
+        success: true,
+        message: None,
+        body: Some(ResponseBody::Pause),
+      }),
+      Command::Restart(_) => Ok(Self {
+        request_seq: req.seq,
+        success: true,
+        message: None,
+        body: Some(ResponseBody::Next),
+      }),
+      Command::RestartFrame(_) => Ok(Self {
+        request_seq: req.seq,
+        success: true,
+        message: None,
+        body: Some(ResponseBody::RestartFrame),
+      }),
+      Command::ReverseContinue(_) => Ok(Self {
+        request_seq: req.seq,
+        success: true,
+        message: None,
+        body: Some(ResponseBody::ReverseContinue),
+      }),
+      Command::StepBack(_) => Ok(Self {
+        request_seq: req.seq,
+        success: true,
+        message: None,
+        body: Some(ResponseBody::StepBack),
+      }),
+      Command::StepIn(_) => Ok(Self {
+        request_seq: req.seq,
+        success: true,
+        message: None,
+        body: Some(ResponseBody::StepIn),
+      }),
+      Command::StepOut(_) => Ok(Self {
+        request_seq: req.seq,
+        success: true,
+        message: None,
+        body: Some(ResponseBody::StepOut),
+      }),
+      Command::Terminate(_) => Ok(Self {
+        request_seq: req.seq,
+        success: true,
+        message: None,
+        body: Some(ResponseBody::Terminate),
+      }),
+      Command::TerminateThreads(_) => Ok(Self {
+        request_seq: req.seq,
+        success: true,
+        message: None,
+        body: Some(ResponseBody::TerminateThreads),
+      }),
+      _ => Err(AdapterError::ResponseContructError),
     }
   }
 }
