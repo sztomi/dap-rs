@@ -4,6 +4,8 @@ use thiserror::Error;
 pub enum DeserializationError {
   #[error("could not parse value '{value}' to enum variant of '{enum_name}'")]
   StringToEnumParseError { enum_name: String, value: String },
+  #[error("Error while deserializing")]
+  SerdeError(#[from] serde_json::Error),
 }
 
 #[derive(Debug, Error)]
