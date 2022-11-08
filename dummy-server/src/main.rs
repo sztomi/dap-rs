@@ -1,11 +1,11 @@
 use std::fs::File;
 use std::io::{BufWriter, BufReader};
 
-use dap_rs::adapter::Adapter;
-use dap_rs::client::{BasicClient};
-use dap_rs::requests::Request;
-use dap_rs::responses::{Response, ResponseBody};
-use dap_rs::server::Server;
+use dap::adapter::Adapter;
+use dap::client::{BasicClient};
+use dap::requests::Request;
+use dap::responses::{Response};
+use dap::server::Server;
 
 use anyhow::Result;
 
@@ -19,8 +19,8 @@ impl Adapter for MyAdapter {
 }
 
 fn main() -> Result<()> {
-  let mut adapter = MyAdapter{};
-  let mut client = BasicClient::new(BufWriter::new(std::io::stdout()));
+  let adapter = MyAdapter{};
+  let client = BasicClient::new(BufWriter::new(std::io::stdout()));
   let mut server = Server::new(adapter, client);
   let f = File::open("testinput.txt")?;
   let mut reader = BufReader::new(f);

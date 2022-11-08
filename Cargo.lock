@@ -114,7 +114,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "dap-rs"
+name = "dap"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -129,7 +129,7 @@ name = "dummy-server"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "dap-rs",
+ "dap",
  "log",
 ]
 

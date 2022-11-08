@@ -7,5 +7,5 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.66"
-dap-rs = { path = "../dap-rs"}
+dap = { path = "../dap-rs"}
 log = "0.4.17"
