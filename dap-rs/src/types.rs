@@ -2,6 +2,7 @@ use std::convert::Infallible;
 use std::str::FromStr;
 
 use serde::{de, Deserialize, Deserializer, Serialize};
+use serde_json::Value;
 
 use crate::errors::DeserializationError;
 use crate::{fromstr_deser, tostr_ser};
@@ -239,7 +240,7 @@ pub struct Source {
   /// Additional data that a debug adapter might want to loop through the client.
   /// The client should leave the data intact and persist it across sessions. The
   /// client should not interpret the data.
-  pub adapter_data: Option<String>,
+  pub adapter_data: Option<Value>,
   /// The checksums associated with this file.
   pub checksums: Option<Vec<Checksum>>,
 }

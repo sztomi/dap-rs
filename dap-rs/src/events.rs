@@ -1,4 +1,5 @@
 use serde::Serialize;
+use serde_json::Value;
 
 use crate::types::{
   Breakpoint, BreakpointEventReason, Capabilities, InvalidatedAreas, LoadedSourceEventReason,
@@ -150,7 +151,7 @@ pub struct OutputEventBody {
   pub column: Option<i64>,
   /// Additional data to report. For the `telemetry` category the data is sent
   /// to telemetry, for the other categories the data is shown in JSON format.
-  pub data: Option<String>,
+  pub data: Option<Value>,
 }
 
 //// Arguments for an Process event.
@@ -281,7 +282,7 @@ pub struct TerminatedEventBody {
   /// request that the client restarts the session.
   /// The value is not interpreted by the client and passed unmodified as an
   /// attribute `__restart` to the `launch` and `attach` requests.
-  pub restart: Option<String>,
+  pub restart: Option<Value>,
 }
 
 //// Arguments for a Thread event.

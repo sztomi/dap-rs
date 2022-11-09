@@ -1,6 +1,7 @@
 use std::{convert::Infallible, str::FromStr};
 
 use serde::{de, Deserialize, Deserializer};
+use serde_json::Value;
 
 use crate::{
   fromstr_deser,
@@ -140,7 +141,7 @@ pub struct LaunchRequestArguments {
   /// Rust-specific: this data must be a string. Server requiring storing binary data should use
   /// an encoding that is suitable for string (e.g. base85 or similar).
   #[serde(rename = "__restart")]
-  pub restart_data: Option<String>,
+  pub restart_data: Option<Value>,
 }
 
 //// Arguments for an Attach request.
@@ -151,7 +152,7 @@ pub struct AttachRequestArguments {
   /// The data is sent as the `restart` attribute of the `terminated` event.
   /// The client should leave the data intact.
   #[serde(rename = "__restart")]
-  pub restart_data: Option<String>,
+  pub restart_data: Option<Value>,
 }
 
 //// Arguments for a BreakpointLocations request.
