@@ -1825,3 +1825,71 @@ pub struct Variable {
   /// `supportsMemoryReferences` is true.
   pub memory_reference: Option<String>,
 }
+
+#[derive(Debug)]
+pub enum RunInTerminalRequestArgumentsKind {
+  Integrated,
+  External,
+}
+
+impl FromStr for RunInTerminalRequestArgumentsKind {
+  type Err = DeserializationError;
+
+  fn from_str(s: &str) -> Result<Self, Self::Err> {
+    match s {
+      "integrated" => Ok(RunInTerminalRequestArgumentsKind::Integrated),
+      "external" => Ok(RunInTerminalRequestArgumentsKind::External),
+      other => Err(DeserializationError::StringToEnumParseError {
+        enum_name: "RunInTerminalRequestArgumentsKind".to_string(),
+        value: other.to_string(),
+      }),
+    }
+  }
+}
+
+impl ToString for RunInTerminalRequestArgumentsKind {
+  fn to_string(&self) -> String {
+    match &self {
+      RunInTerminalRequestArgumentsKind::Integrated => "integrated",
+      RunInTerminalRequestArgumentsKind::External => "external",
+    }
+    .to_string()
+  }
+}
+
+tostr_ser!{ RunInTerminalRequestArgumentsKind }
+
+
+#[derive(Debug)]
+pub enum StartDebuggingRequestKind {
+  Launch,
+  Attach,
+}
+
+impl FromStr for StartDebuggingRequestKind {
+  type Err = DeserializationError;
+
+  fn from_str(s: &str) -> Result<Self, Self::Err> {
+    match s {
+      "launch" => Ok(StartDebuggingRequestKind::Launch),
+      "attach" => Ok(StartDebuggingRequestKind::Attach),
+      other => Err(DeserializationError::StringToEnumParseError {
+        enum_name: "StartDebuggingRequestArgumentsRequest".to_string(),
+        value: other.to_string(),
+      }),
+    }
+  }
+}
+
+impl ToString for StartDebuggingRequestKind {
+  fn to_string(&self) -> String {
+    match &self {
+      StartDebuggingRequestKind::Launch => "launch",
+      StartDebuggingRequestKind::Attach => "attach",
+    }
+    .to_string()
+  }
+}
+
+fromstr_deser!{ StartDebuggingRequestKind }
+tostr_ser!{ StartDebuggingRequestKind }

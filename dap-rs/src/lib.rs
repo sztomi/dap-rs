@@ -7,6 +7,7 @@ pub mod types;
 pub mod adapter;
 pub mod client;
 pub mod server;
+pub mod reverse_requests;
 
 /*
 use responses::ResponseMessage;
