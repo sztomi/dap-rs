@@ -3,7 +3,9 @@ use std::io::{BufWriter, Write};
 use serde::Serialize;
 use serde_json;
 
-use crate::{errors::ClientError, events::Event, requests::Request, responses::Response};
+use crate::{
+  errors::ClientError, events::Event, responses::Response, reverse_requests::ReverseRequest,
+};
 
 pub type Result<T> = std::result::Result<T, ClientError>;
 
@@ -15,7 +17,7 @@ pub trait Client {
   /// Sends an even to the client.
   fn send_event(&mut self, event: Event) -> Result<()>;
   /// Sends a reverse request to the client.
-  fn send_reverse_request(&mut self, request: Request) -> Result<()>;
+  fn send_reverse_request(&mut self, request: ReverseRequest) -> Result<()>;
 }
 
 pub struct BasicClient<W: Write> {
@@ -27,7 +29,7 @@ pub struct BasicClient<W: Write> {
 enum Sendable {
   Response(Response),
   Event(Event),
-  //Request(Request),
+  ReverseRequest(ReverseRequest),
 }
 
 impl<W: Write> BasicClient<W> {
@@ -39,7 +41,8 @@ impl<W: Write> BasicClient<W> {
 
   fn send(&mut self, s: Sendable) -> Result<()> {
     let resp_json = serde_json::to_string(&s).map_err(ClientError::SerializationError)?;
-    write!(self.stream, "Content-Length: {}\r\n\r\n", resp_json.len()).map_err(ClientError::IoError)?;
+    write!(self.stream, "Content-Length: {}\r\n\r\n", resp_json.len())
+      .map_err(ClientError::IoError)?;
     println!("{resp_json}\n");
     write!(self.stream, "{}\r\n", resp_json).map_err(ClientError::IoError)?;
     Ok(())
@@ -55,7 +58,7 @@ impl<W: Write> Client for BasicClient<W> {
     self.send(Sendable::Event(event))
   }
 
-  fn send_reverse_request(&mut self, request: Request) -> Result<()> {
-    todo!()
+  fn send_reverse_request(&mut self, request: ReverseRequest) -> Result<()> {
+    self.send(Sendable::ReverseRequest(request))
   }
 }
