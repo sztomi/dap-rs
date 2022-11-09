@@ -31,3 +31,11 @@ pub enum AdapterError {
   #[error("Trying to contruct a non-sense response (such as an ACK for a request that requires a response body")]
   ResponseContructError,
 }
+
+#[derive(Debug, Error)]
+pub enum ClientError {
+  #[error("I/O error")]
+  IoError(#[from] std::io::Error),
+  #[error("Serialization error")]
+  SerializationError(#[from] serde_json::Error)
+}
