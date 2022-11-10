@@ -78,7 +78,7 @@ impl<A: Adapter, C: Client> Server<A, C> {
                 Err(e) => return Err(ServerError::ParseError(DeserializationError::SerdeError(e))),
               };
               let response = self.adapter.accept(request);
-              self.client.respond(response);
+              self.client.respond(response).map_err(ServerError::ClientError)?;
               state = InputState::Header;
               buffer.clear();
             }

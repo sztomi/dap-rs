@@ -1,4 +1,4 @@
-use crate::{requests::Request, responses::Response, client::Client};
+use crate::{requests::Request, responses::Response};
 
 /// Trait for an debug adapter.
 ///
