@@ -1,11 +1,7 @@
 use std::fs::File;
 use std::io::{BufWriter, BufReader};
 
-use dap::adapter::Adapter;
-use dap::client::{BasicClient};
-use dap::requests::Request;
-use dap::responses::{Response};
-use dap::server::Server;
+use dap::{Adapter, BasicClient, Request, Response, Server};
 
 use anyhow::Result;
 
