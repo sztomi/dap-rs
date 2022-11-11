@@ -90,7 +90,7 @@ pub enum ReverseCommand {
 /// amount of serialization code for all requests and supporting types (that the
 /// vast majority of would never be serialized by the adapter, only deserialized).
 #[derive(Serialize, Debug)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 pub struct ReverseRequest {
   /// Sequence number for the Request.
   ///
