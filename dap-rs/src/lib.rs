@@ -2,15 +2,15 @@
 //!
 //! This crate is a Rust implementation of the [Debug Adapter Protocol][1] (or DAP for short).
 //!
-//! The best way to think of DAP is to say that it's like [LSP][2] (Language Server Protocol) but
+//! The best way to think of DAP is to compare it to [LSP][2] (Language Server Protocol) but
 //! for debuggers. The core idea is the same: a protocol that serves as *lingua franca*
 //! for editors and debuggers to talk to each other. This means that an editor that implements
 //! DAP can use a debugger that also implements DAP.
 //!
 //! In practice, the adapter might be separate from the actual debugger. For example, one could
-//! implement an adapter that calls gdb commands in a gdb process that runs as a subprocess.
-//!
-//! Alternatively, DAP might be integrated into the actual debugger and run in the same process.
+//! implement an adapter that writes commands to the stdin of a gdb subprocess, then parses
+//! the output it receives (this is why it's called an "adapter" - it adapts the debugger to
+//! editors that know DAP).
 //!
 //! # Getting started
 //!
@@ -29,7 +29,7 @@
 //! Import the following types:
 //!
 //! ```rust
-//! use dap::{Adapter, BasicClient, Request, Response, Server};
+//! use dap::{Adapter, BasicClient, Request, Response, Server, ClientContext};
 //! ```
 //!
 //! Create your `Adapter` which is going to be the heart of your implementation.
@@ -40,7 +40,7 @@
 //! struct MyAdapter;
 //!
 //! impl Adapter for MyAdapter {
-//!   fn accept(&mut self, request: Request) -> Response {
+//!   fn accept(&mut self, request: Request, _ctx: &mut dyn ClientContext) -> Response {
 //!     println!("accept {:?}", request);
 //!     Response::make_ack(&request).unwrap()
 //!   }
@@ -50,6 +50,17 @@
 //! The `request` will be deserialized and its `command` field will be one of the [requests][3]
 //! variants. In practice, this function will likely contain a large `match` expression or
 //! some other means of dispatching the requests to code that can handle them.
+//!
+//! The unused `_ctx` parameter could be used to send events and reverse requests to the client.
+//!
+//! What about error handling?
+//!
+//! As you may have noticed, we are unwrapping a result in the above example, which may result
+//! in a panic. In real-life application code, you should seldom unwrap a Result this way.
+//! For DAP clients, and ultimately, users, it is important to see the error that is happening,
+//! instead of the adapter suddenly dying on them. The DAP protocol allows returning response messages
+//! that contain errors. This is why the `accept` function does not return a result. Implementors
+//! of the `Adapter` trait should map their errors to error responses.
 //!
 //! After this, you will want to create the infrastructure for communicating with the client. First,
 //! an instance of your adapter:
@@ -68,7 +79,7 @@
 //! responses, event and reverse requests are written. It is easy and typical to write to the
 //! standard output, but some implementations may want to write to a socket instead.
 //!
-//! There is a `Client` trait that can be implemented to provide different behavior.
+//! The `Client` and `ClientContext` traits can be implemented to provide different behavior.
 //!
 //! Next, we create the `Server`. The `Server` ties together the `Adapter` and the `Client`. Most
 //! importantly, it is the server's responsibility to deserialize the incoming JSON requests,
@@ -78,7 +89,14 @@
 //! ```rust
 //! let mut server = Server::new(adapter, client);
 //! ```
+//! Finally, we create a `BufReader` for the server which serves as the input mechanism and run the
+//! server.
 //!
+//! ```rust
+//! let mut reader = BufReader::new(std::io::stdin());
+//! server.run(&mut reader)?;
+//! ```
+//! The server will run until EOF is encountered.
 //!
 //! [1]: https://microsoft.github.io/debug-adapter-protocol/
 //! [2]: https://microsoft.github.io/language-server-protocol/
@@ -96,9 +114,9 @@ pub mod reverse_requests;
 mod macros;
 
 pub use server::Server;
-pub use client::{Client, BasicClient};
+pub use client::{Client, BasicClient, ClientContext};
 pub use responses::Response;
-pub use requests::Request;
+pub use requests::{Request, Command};
 pub use reverse_requests::ReverseRequest;
 pub use events::Event;
 pub use adapter::Adapter;
