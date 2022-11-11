@@ -2,6 +2,7 @@ use std::io::BufRead;
 
 use serde_json;
 
+use crate::ClientContext;
 use crate::adapter::Adapter;
 use crate::client::Client;
 use crate::errors::{DeserializationError, ServerError};
@@ -22,7 +23,7 @@ pub struct Server<A: Adapter, C: Client> {
   client: C,
 }
 
-impl<A: Adapter, C: Client> Server<A, C> {
+impl<A: Adapter, C: Client + ClientContext> Server<A, C> {
   pub fn new(adapter: A, client: C) -> Self {
     Self { adapter, client }
   }
@@ -36,7 +37,6 @@ impl<A: Adapter, C: Client> Server<A, C> {
       match input.read_line(&mut buffer) {
         Ok(mut read_size) => {
           if read_size == 0 {
-            println!("EOF");
             break Ok(());
           }
           match state {
@@ -77,7 +77,7 @@ impl<A: Adapter, C: Client> Server<A, C> {
                 Ok(val) => val,
                 Err(e) => return Err(ServerError::ParseError(DeserializationError::SerdeError(e))),
               };
-              let response = self.adapter.accept(request);
+              let response = self.adapter.accept(request, &mut self.client);
               self.client.respond(response).map_err(ServerError::ClientError)?;
               state = InputState::Header;
               buffer.clear();
