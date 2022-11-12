@@ -6,7 +6,7 @@ use crate::adapter::Adapter;
 use crate::client::Client;
 use crate::errors::{DeserializationError, ServerError};
 use crate::requests::Request;
-use crate::{Context, Event};
+use crate::Context;
 
 #[derive(Debug)]
 enum ServerState {
@@ -96,7 +96,6 @@ impl<A: Adapter, C: Client + Context> Server<A, C> {
                 .map_err(ServerError::ClientError)?;
 
               if self.client.get_exit_state() {
-                self.client.send_event(Event::Terminated(None))?;
                 state = ServerState::Exiting;
                 continue;
               }

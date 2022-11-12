@@ -24,6 +24,8 @@ pub trait Context {
   fn send_reverse_request(&mut self, request: ReverseRequest) -> Result<()>;
   /// Notifies the server that it should gracefully exit after `accept`
   /// returned.
+  ///
+  /// It is recommended to send a `Terminated` and/or `Stopped` event to the client.
   fn request_exit(&mut self);
   /// Clears an exit request set by `request_exit` in the same `accept` call.
   /// This cannot be used to clear an exit request that happened during a previous
