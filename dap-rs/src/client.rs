@@ -22,10 +22,20 @@ pub trait Context {
   fn send_event(&mut self, event: Event) -> Result<()>;
   /// Sends a reverse request to the client.
   fn send_reverse_request(&mut self, request: ReverseRequest) -> Result<()>;
+  /// Notifies the server that it should gracefully exit after `accept`
+  /// returned.
+  fn request_exit(&mut self);
+  /// Clears an exit request set by `request_exit` in the same `accept` call.
+  /// This cannot be used to clear an exit request that happened during a previous
+  /// `accept`.
+  fn cancel_exit(&mut self);
+  /// Returns `true` if the exiting was requested.
+  fn get_exit_state(&self) -> bool;
 }
 
 pub struct BasicClient<W: Write> {
   stream: BufWriter<W>,
+  should_exit: bool,
 }
 
 #[derive(Serialize, Debug)]
@@ -40,6 +50,7 @@ impl<W: Write> BasicClient<W> {
   pub fn new(stream: W) -> Self {
     Self {
       stream: BufWriter::new(stream),
+      should_exit: false,
     }
   }
 
@@ -65,5 +76,17 @@ impl<W: Write> Context for BasicClient<W> {
 
   fn send_reverse_request(&mut self, request: ReverseRequest) -> Result<()> {
     self.send(Sendable::ReverseRequest(request))
+  }
+
+  fn request_exit(&mut self) {
+    self.should_exit = true;
+  }
+
+  fn cancel_exit(&mut self) {
+    self.should_exit = false;
+  }
+
+  fn get_exit_state(&self) -> bool {
+    self.should_exit
   }
 }
