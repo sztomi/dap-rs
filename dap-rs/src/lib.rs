@@ -29,7 +29,7 @@
 //! Import the following types:
 //!
 //! ```rust
-//! use dap::{Adapter, BasicClient, Request, Response, Server, ClientContext};
+//! use dap::{Adapter, BasicClient, Request, Response, Server, Context};
 //! ```
 //!
 //! Create your `Adapter` which is going to be the heart of your implementation.
@@ -40,7 +40,7 @@
 //! struct MyAdapter;
 //!
 //! impl Adapter for MyAdapter {
-//!   fn accept(&mut self, request: Request, _ctx: &mut dyn ClientContext) -> Response {
+//!   fn accept(&mut self, request: Request, _ctx: &mut dyn Context) -> Response {
 //!     println!("accept {:?}", request);
 //!     Response::make_ack(&request).unwrap()
 //!   }
@@ -79,7 +79,7 @@
 //! responses, event and reverse requests are written. It is easy and typical to write to the
 //! standard output, but some implementations may want to write to a socket instead.
 //!
-//! The `Client` and `ClientContext` traits can be implemented to provide different behavior.
+//! The `Client` and `Context` traits can be implemented to provide different behavior.
 //!
 //! Next, we create the `Server`. The `Server` ties together the `Adapter` and the `Client`. Most
 //! importantly, it is the server's responsibility to deserialize the incoming JSON requests,
@@ -114,7 +114,7 @@ pub mod reverse_requests;
 mod macros;
 
 pub use server::Server;
-pub use client::{Client, BasicClient, ClientContext};
+pub use client::{Client, BasicClient, Context};
 pub use responses::Response;
 pub use requests::{Request, Command};
 pub use reverse_requests::ReverseRequest;

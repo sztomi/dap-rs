@@ -3,14 +3,14 @@ use std::io::{BufReader, BufWriter};
 
 use dap::responses::ResponseBody::Initialize;
 use dap::types::Capabilities;
-use dap::{Adapter, BasicClient, ClientContext, Command, Request, Response, Server};
+use dap::{Adapter, BasicClient, Context, Command, Request, Response, Server};
 
 use anyhow::Result;
 
 struct MyAdapter;
 
 impl Adapter for MyAdapter {
-  fn accept(&mut self, request: Request, _ctx: &mut dyn ClientContext) -> Response {
+  fn accept(&mut self, request: Request, _ctx: &mut dyn Context) -> Response {
     println!("Accept {:?}\n", request.command);
 
     match &request.command {

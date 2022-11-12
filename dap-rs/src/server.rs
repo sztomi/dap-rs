@@ -2,7 +2,7 @@ use std::io::BufRead;
 
 use serde_json;
 
-use crate::ClientContext;
+use crate::Context;
 use crate::adapter::Adapter;
 use crate::client::Client;
 use crate::errors::{DeserializationError, ServerError};
@@ -18,16 +18,26 @@ enum InputState {
   Content,
 }
 
-pub struct Server<A: Adapter, C: Client> {
+/// Ties together an Adapter and a Client.
+///
+/// The `Server` is responsible for reading the incoming bytestream and constructing deserialized
+/// requests from it; calling the `accept` function of the `Adapter` and passing the response
+/// to the client.
+pub struct Server<A: Adapter, C: Client + Context> {
   adapter: A,
   client: C,
 }
 
-impl<A: Adapter, C: Client + ClientContext> Server<A, C> {
+impl<A: Adapter, C: Client + Context> Server<A, C> {
+  /// Construct a new Server and take ownership of the adapter and client.
   pub fn new(adapter: A, client: C) -> Self {
     Self { adapter, client }
   }
 
+  /// Run the server.
+  ///
+  /// This will start reading the `input` buffer that is passed to it and will try to interpert
+  /// the incoming bytes according to the DAP protocol.
   pub fn run<Buf: BufRead>(&mut self, input: &mut Buf) -> Result<(), ServerError> {
     let mut state = InputState::Header;
     let mut buffer = String::new();

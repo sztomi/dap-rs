@@ -17,7 +17,7 @@ pub trait Client {
 }
 
 /// Trait for sending events and requests to the connected client.
-pub trait ClientContext {
+pub trait Context {
   /// Sends an even to the client.
   fn send_event(&mut self, event: Event) -> Result<()>;
   /// Sends a reverse request to the client.
@@ -58,7 +58,7 @@ impl<W: Write> Client for BasicClient<W> {
   }
 }
 
-impl<W: Write> ClientContext for BasicClient<W> {
+impl<W: Write> Context for BasicClient<W> {
   fn send_event(&mut self, event: Event) -> Result<()> {
     self.send(Sendable::Event(event))
   }
