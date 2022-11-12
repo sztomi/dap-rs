@@ -11,11 +11,11 @@ struct MyAdapter;
 
 impl Adapter for MyAdapter {
   fn accept(&mut self, request: Request, _ctx: &mut dyn Context) -> Response {
-    println!("Accept {:?}\n", request.command);
+    eprintln!("Accept {:?}\n", request.command);
 
     match &request.command {
       Command::Initialize(args) => {
-        println!(
+        eprintln!(
           "> Client '{}' requested initialization.",
           args.client_name.as_ref().unwrap()
         );
