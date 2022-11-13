@@ -1,10 +1,10 @@
+use std::error;
 use std::fs::File;
 use std::io::{BufReader, BufWriter};
-use std::error;
 
 use dap::responses::ResponseBody::Initialize;
 use dap::types::Capabilities;
-use dap::{Adapter, BasicClient, Context, Command, Request, Response, Server};
+use dap::{Adapter, BasicClient, Command, Context, Request, Response, Server};
 
 type Result<T> = std::result::Result<T, Box<dyn error::Error>>;
 
@@ -20,11 +20,14 @@ impl Adapter for MyAdapter {
           "> Client '{}' requested initialization.",
           args.client_name.as_ref().unwrap()
         );
-        Response::make_success(&request, Initialize(Some(Capabilities {
+        Response::make_success(
+          &request,
+          Initialize(Some(Capabilities {
             supports_configuration_done_request: Some(true),
             supports_evaluate_for_hovers: Some(true),
             ..Default::default()
-        })))
+          })),
+        )
       }
       Command::Next(_) => Response::make_ack(&request).unwrap(),
       _ => todo!(),

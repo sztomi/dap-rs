@@ -1,12 +1,13 @@
 use serde::Serialize;
 
 use crate::{
+  errors::AdapterError,
   requests::{Command, Request},
   types::{
     Breakpoint, BreakpointLocation, Capabilities, CompletionItem, DataBreakpointAccessType,
     DisassembledInstruction, ExceptionBreakMode, ExceptionDetails, GotoTarget, Module, Scope,
     Source, StackFrame, Thread, Variable, VariablePresentationHint,
-  }, errors::AdapterError,
+  },
 };
 
 /// Represents a response messagte that is either a cancellation or a short error string.
@@ -584,7 +585,7 @@ impl Response {
 
   /// Create an acknowledgement response. This is a shorthand for responding to requests
   /// where the response does not require a body.
-  pub fn make_ack(req: &Request) -> Result<Self, AdapterError>  {
+  pub fn make_ack(req: &Request) -> Result<Self, AdapterError> {
     match req.command {
       Command::Attach(_) => Ok(Self {
         request_seq: req.seq,

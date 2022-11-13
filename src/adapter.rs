@@ -1,4 +1,4 @@
-use crate::{Request, Response, Context};
+use crate::{Context, Request, Response};
 
 /// Trait for an debug adapter.
 ///

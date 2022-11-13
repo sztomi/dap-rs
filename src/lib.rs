@@ -101,22 +101,22 @@
 //! [1]: https://microsoft.github.io/debug-adapter-protocol/
 //! [2]: https://microsoft.github.io/language-server-protocol/
 //! [3]: https://microsoft.github.io/debug-adapter-protocol/specification#Requests
-pub mod errors;
-pub mod events;
-pub mod requests;
-pub mod responses;
-pub mod types;
 pub mod adapter;
 pub mod client;
-pub mod server;
-pub mod reverse_requests;
+pub mod errors;
+pub mod events;
 #[doc(hidden)]
 mod macros;
+pub mod requests;
+pub mod responses;
+pub mod reverse_requests;
+pub mod server;
+pub mod types;
 
-pub use server::Server;
-pub use client::{Client, BasicClient, Context};
-pub use responses::Response;
-pub use requests::{Request, Command};
-pub use reverse_requests::ReverseRequest;
-pub use events::Event;
 pub use adapter::Adapter;
+pub use client::{BasicClient, Client, Context};
+pub use events::Event;
+pub use requests::{Command, Request};
+pub use responses::Response;
+pub use reverse_requests::ReverseRequest;
+pub use server::Server;

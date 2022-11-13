@@ -1858,8 +1858,7 @@ impl ToString for RunInTerminalRequestArgumentsKind {
   }
 }
 
-tostr_ser!{ RunInTerminalRequestArgumentsKind }
-
+tostr_ser! { RunInTerminalRequestArgumentsKind }
 
 #[derive(Debug)]
 pub enum StartDebuggingRequestKind {
@@ -1892,5 +1891,5 @@ impl ToString for StartDebuggingRequestKind {
   }
 }
 
-fromstr_deser!{ StartDebuggingRequestKind }
-tostr_ser!{ StartDebuggingRequestKind }
+fromstr_deser! { StartDebuggingRequestKind }
+tostr_ser! { StartDebuggingRequestKind }

@@ -4,7 +4,6 @@ use serde::Serialize;
 
 use crate::types::{RunInTerminalRequestArgumentsKind, StartDebuggingRequestKind};
 
-
 #[derive(Serialize, Debug)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 pub struct RunInTerminalRequestArguments {
