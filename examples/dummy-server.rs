@@ -1,11 +1,12 @@
 use std::fs::File;
 use std::io::{BufReader, BufWriter};
+use std::error;
 
 use dap::responses::ResponseBody::Initialize;
 use dap::types::Capabilities;
 use dap::{Adapter, BasicClient, Context, Command, Request, Response, Server};
 
-use anyhow::Result;
+type Result<T> = std::result::Result<T, Box<dyn error::Error>>;
 
 struct MyAdapter;
 
