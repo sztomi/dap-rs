@@ -1,3 +1,4 @@
+use std::fmt::Debug;
 use std::io::BufRead;
 
 use serde_json;
@@ -6,7 +7,7 @@ use crate::adapter::Adapter;
 use crate::client::Client;
 use crate::errors::{DeserializationError, ServerError};
 use crate::requests::Request;
-use crate::Context;
+use crate::client::Context;
 
 #[derive(Debug)]
 enum ServerState {
@@ -40,7 +41,10 @@ impl<A: Adapter, C: Client + Context> Server<A, C> {
   ///
   /// This will start reading the `input` buffer that is passed to it and will try to interpert
   /// the incoming bytes according to the DAP protocol.
-  pub fn run<Buf: BufRead>(&mut self, input: &mut Buf) -> Result<(), ServerError> {
+  pub fn run<Buf: BufRead>(&mut self, input: &mut Buf) -> Result<(), ServerError<A::Error>>
+  where
+    <A as Adapter>::Error: Debug + Sized,
+  {
     let mut state = ServerState::Header;
     let mut buffer = String::new();
     let mut content_length: usize = 0;
@@ -89,11 +93,16 @@ impl<A: Adapter, C: Client + Context> Server<A, C> {
                 Ok(val) => val,
                 Err(e) => return Err(ServerError::ParseError(DeserializationError::SerdeError(e))),
               };
-              let response = self.adapter.accept(request, &mut self.client);
-              self
-                .client
-                .respond(response)
-                .map_err(ServerError::ClientError)?;
+              match self.adapter.accept(request, &mut self.client) {
+                Ok(Some(response)) => {
+                  self
+                    .client
+                    .respond(response)
+                    .map_err(ServerError::ClientError)?;
+                }
+                Err(e) => return Err(ServerError::AdapterError(e)),
+                _ => (),
+              }
 
               if self.client.get_exit_state() {
                 state = ServerState::Exiting;

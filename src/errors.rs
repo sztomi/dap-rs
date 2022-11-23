@@ -1,4 +1,5 @@
 use thiserror::Error;
+use std::fmt::Debug;
 
 #[derive(Debug, Error)]
 pub enum DeserializationError {
@@ -9,7 +10,7 @@ pub enum DeserializationError {
 }
 
 #[derive(Debug, Error)]
-pub enum ServerError {
+pub enum ServerError<AE: Debug> {
   #[error("I/O error")]
   IoError,
 
@@ -27,6 +28,9 @@ pub enum ServerError {
 
   #[error("Error while sending to client")]
   ClientError(#[from] ClientError),
+
+  #[error(transparent)]
+  AdapterError(AE),
 }
 
 #[derive(Debug, Error)]
