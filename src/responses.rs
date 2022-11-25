@@ -348,6 +348,14 @@ pub enum ResponseBody {
   ///
   /// Specification: [Disconnect request](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Disconnect)
   Disconnect,
+  /// This is a special response that indicates no response being sent to the client.
+  ///
+  /// Note that this response variant is not part of the DAP specification, it only exists for
+  /// the purposes of this crate.
+  ///
+  /// Normally, the adapter should send a response to all requests, so only use this in
+  /// exceptional cases.
+  Empty,
   /// Response to `evaluate` request.
   ///
   /// Specification: [Evaluate request](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Evaluate)
@@ -678,6 +686,15 @@ impl Response {
         body: Some(ResponseBody::TerminateThreads),
       }),
       _ => Err(AdapterError::ResponseContructError),
+    }
+  }
+
+  pub fn empty() -> Self {
+    Self {
+      request_seq: 0,
+      success: false,
+      message: None,
+      body: Some(ResponseBody::Empty)
     }
   }
 }

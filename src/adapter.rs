@@ -24,9 +24,5 @@ pub trait Adapter {
   /// the debug adapter is not something that users directly interact with nor something
   /// that they necessarily know about. From the users' perspective, it's an implementation
   /// detail and they are using their editor to debug something.
-  fn accept(
-    &mut self,
-    request: Request,
-    ctx: &mut dyn Context,
-  ) -> Result<Option<Response>, Self::Error>;
+  fn accept(&mut self, request: Request, ctx: &mut dyn Context) -> Result<Response, Self::Error>;
 }

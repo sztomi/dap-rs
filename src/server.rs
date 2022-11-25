@@ -5,9 +5,10 @@ use serde_json;
 
 use crate::adapter::Adapter;
 use crate::client::Client;
-use crate::errors::{DeserializationError, ServerError};
-use crate::requests::Request;
 use crate::client::Context;
+use crate::errors::{DeserializationError, ServerError};
+use crate::prelude::ResponseBody;
+use crate::requests::Request;
 
 #[derive(Debug)]
 enum ServerState {
@@ -94,14 +95,16 @@ impl<A: Adapter, C: Client + Context> Server<A, C> {
                 Err(e) => return Err(ServerError::ParseError(DeserializationError::SerdeError(e))),
               };
               match self.adapter.accept(request, &mut self.client) {
-                Ok(Some(response)) => {
-                  self
-                    .client
-                    .respond(response)
-                    .map_err(ServerError::ClientError)?;
-                }
+                Ok(response) => match response.body {
+                  Some(ResponseBody::Empty) => (),
+                  _ => {
+                    self
+                      .client
+                      .respond(response)
+                      .map_err(ServerError::ClientError)?;
+                  }
+                },
                 Err(e) => return Err(ServerError::AdapterError(e)),
-                _ => (),
               }
 
               if self.client.get_exit_state() {

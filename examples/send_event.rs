@@ -6,27 +6,22 @@ use thiserror::Error;
 
 use dap::prelude::*;
 
-
-struct MyAdapter;
-
 #[derive(Error, Debug)]
 enum MyAdapterError {
   #[error("Error while sending error")]
   SendEventError(#[from] ClientError),
 }
 
+struct MyAdapter;
+
 impl Adapter for MyAdapter {
   type Error = MyAdapterError;
 
-  fn accept(
-    &mut self,
-    _request: Request,
-    ctx: &mut dyn Context,
-  ) -> Result<Option<Response>, Self::Error> {
+  fn accept(&mut self, _request: Request, ctx: &mut dyn Context) -> Result<Response, Self::Error> {
     ctx
       .send_event(Event::Initialized)
       .map_err(MyAdapterError::SendEventError)?;
-    Ok(None)
+    Ok(Response::empty())
   }
 }
 
