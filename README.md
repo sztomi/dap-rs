@@ -14,6 +14,11 @@ implement an adapter that writes commands to the stdin of a gdb subprocess, then
 the output it receives (this is why it's called an "adapter" - it adapts the debugger to
 editors that know DAP).
 
+## Stability
+
+This crate is in a fairly early stage and breakages will be frequent. Any version before
+1.0 might be a breaking version.
+
 ## Tutorial
 
 For illustration purposes, we are going to recreate the `dummy-server` example, step by step.
@@ -23,7 +28,7 @@ To get started, create a binary project and add `dap` to your Cargo.toml:
 ```toml
 [package]
 name = "dummy-server"
-version = "0.1.0"
+version = "*"
 edition = "2021"
 
 [dependencies]
