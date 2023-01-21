@@ -528,6 +528,7 @@ pub enum ResponseBody {
 #[serde(rename_all = "camelCase")]
 pub struct Response {
   /// Sequence number of the corresponding request.
+  #[serde(rename = "request_seq")]
   pub request_seq: i64,
   /// Outcome of the request.
   /// If true, the request was successful and the `body` attribute may contain
