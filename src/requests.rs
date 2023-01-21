@@ -145,6 +145,22 @@ pub struct LaunchRequestArguments {
   /// an encoding that is suitable for string (e.g. base85 or similar).
   #[serde(rename = "__restart")]
   pub restart_data: Option<Value>,
+
+  /// the program to execute
+  /// (extension to the specification, see: codelldb)
+  pub program: Option<String>,
+
+  /// process arguments
+  /// (extension to the specification, see: lldb-vscode)
+  pub args: Option<Vec<String>>,
+
+  /// process working directory
+  /// (extension to the specification, see: lldb-vscode)
+  pub cwd: Option<String>,
+
+  /// debuggee environment. The format is "[{ENV,VALUE},..]"
+  /// (extension to the specification, see: lldb-vscode)
+  pub env: Option<Vec<(String, String)>>,
 }
 
 //// Arguments for an Attach request.
