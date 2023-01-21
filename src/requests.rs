@@ -158,9 +158,10 @@ pub struct LaunchRequestArguments {
   /// (extension to the specification, see: lldb-vscode)
   pub cwd: Option<String>,
 
-  /// debuggee environment. The format is "[{ENV,VALUE},..]"
+  /// debuggee environment. The expected format is
+  /// array of strings, each string has the format of NAME=VALUE
   /// (extension to the specification, see: lldb-vscode)
-  pub env: Option<Vec<(String, String)>>,
+  pub env: Option<Vec<String>>,
 }
 
 //// Arguments for an Attach request.
