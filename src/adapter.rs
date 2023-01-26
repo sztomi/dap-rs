@@ -26,7 +26,7 @@ pub trait Adapter {
     /// the debug adapter is not something that users directly interact with nor something
     /// that they necessarily know about. From the users' perspective, it's an implementation
     /// detail and they are using their editor to debug something.
-    async fn accept(
+    async fn handle_request(
         &mut self,
         request: Request,
         ctx: &mut dyn Context,

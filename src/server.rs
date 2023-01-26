@@ -31,6 +31,12 @@ pub struct Server<A: Adapter, C: Client + Context> {
     client: C,
 }
 
+fn escape_crlf(instr: &String) -> String {
+    let mut str = instr.replace("\n", "\\n");
+    str = str.replace("\r", "\\r");
+    str
+}
+
 impl<A: Adapter, C: Client + Context> Server<A, C> {
     /// Construct a new Server and take ownership of the adapter and client.
     pub fn new(adapter: A, client: C) -> Self {
@@ -49,82 +55,93 @@ impl<A: Adapter, C: Client + Context> Server<A, C> {
         let mut content_length: usize = 0;
 
         loop {
-            match input.read_line().await {
-                Ok(mut buffer) => {
-                    tracing::trace!("read line: {buffer}");
+            match state {
+                ServerState::Header => {
+                    let Ok(mut buffer) = input.read_line().await else {
+                        return Err(ServerError::IoError)
+                    };
+
+                    tracing::trace!("HEADER: read line: {}", escape_crlf(&buffer));
                     if buffer.is_empty() {
                         break Ok(());
                     }
-                    match state {
-                        ServerState::Header => {
-                            let parts: Vec<&str> = buffer.trim_end().split(':').collect();
-                            if parts.len() == 2 {
-                                match parts[0] {
-                                    "Content-Length" => {
-                                        content_length = match parts[1].trim().parse() {
-                                            Ok(val) => val,
-                                            Err(_) => {
-                                                return Err(ServerError::HeaderParseError {
-                                                    line: buffer,
-                                                })
-                                            }
-                                        };
-                                        buffer.clear();
-                                        buffer.reserve(content_length);
-                                        state = ServerState::Sep;
-                                    }
-                                    other => {
-                                        return Err(ServerError::UnknownHeader {
-                                            header: other.to_string(),
-                                        })
-                                    }
-                                }
-                            } else {
-                                return Err(ServerError::HeaderParseError { line: buffer });
-                            }
-                        }
-                        ServerState::Sep => {
-                            if buffer == "\r\n" {
-                                state = ServerState::Content;
-                            }
-                        }
-                        ServerState::Content => {
-                            // read the content
-                            let mut payload = bytes::BytesMut::with_capacity(content_length);
-                            let _ = input.read_n_bytes(&mut payload, content_length).await;
-                            buffer = String::from_utf8_lossy(&payload).to_string();
-                            let request: Request = match serde_json::from_str(&buffer) {
-                                Ok(val) => val,
-                                Err(e) => {
-                                    return Err(ServerError::ParseError(
-                                        DeserializationError::SerdeError(e),
-                                    ))
-                                }
-                            };
-                            match self.adapter.accept(request, &mut self.client).await {
-                                Ok(response) => match response.body {
-                                    Some(ResponseBody::Empty) => (),
-                                    _ => {
-                                        self.client
-                                            .respond(response)
-                                            .map_err(ServerError::ClientError)?;
-                                    }
-                                },
-                                Err(e) => return Err(ServerError::AdapterError(e)),
-                            }
 
-                            if self.client.get_exit_state() {
-                                state = ServerState::Exiting;
-                                continue;
+                    let parts: Vec<&str> = buffer.trim_end().split(':').collect();
+                    if parts.len() == 2 {
+                        match parts[0] {
+                            "Content-Length" => {
+                                content_length = match parts[1].trim().parse() {
+                                    Ok(val) => val,
+                                    Err(_) => {
+                                        return Err(ServerError::HeaderParseError { line: buffer })
+                                    }
+                                };
+                                buffer.clear();
+                                buffer.reserve(content_length);
+                                state = ServerState::Sep;
                             }
-
-                            state = ServerState::Header;
-                            buffer.clear();
+                            other => {
+                                return Err(ServerError::UnknownHeader {
+                                    header: other.to_string(),
+                                })
+                            }
                         }
-                        ServerState::Exiting => break Ok(()),
+                    } else {
+                        return Err(ServerError::HeaderParseError { line: buffer });
                     }
                 }
-                Err(_) => return Err(ServerError::IoError),
+                ServerState::Sep => {
+                    let Ok(buffer) = input.read_line().await else {
+                        return Err(ServerError::IoError)
+                    };
+                    if buffer == "\r\n" {
+                        state = ServerState::Content;
+                    } else {
+                        // expecting separator
+                        return Err(ServerError::ProtocolError {
+                            reason: "failed to read separator".to_string(),
+                            line: "0".to_string(),
+                        });
+                    }
+                }
+                ServerState::Content => {
+                    // read the payload
+                    let mut payload = bytes::BytesMut::with_capacity(content_length);
+                    if let Err(_) = input.read_n_bytes(&mut payload, content_length).await {
+                        return Err(ServerError::IoError);
+                    }
+
+                    let payload = String::from_utf8_lossy(&payload).to_string();
+                    let request: Request = match serde_json::from_str(&payload) {
+                        Ok(val) => val,
+                        Err(e) => {
+                            return Err(ServerError::ParseError(DeserializationError::SerdeError(
+                                e,
+                            )))
+                        }
+                    };
+                    // pass it to the adapter
+                    match self.adapter.handle_request(request, &mut self.client).await {
+                        Ok(response) => match response.body {
+                            Some(ResponseBody::Empty) => (),
+                            _ => {
+                                self.client
+                                    .respond(response)
+                                    .map_err(ServerError::ClientError)?;
+                            }
+                        },
+                        Err(e) => return Err(ServerError::AdapterError(e)),
+                    }
+
+                    if self.client.get_exit_state() {
+                        state = ServerState::Exiting;
+                        continue;
+                    }
+
+                    state = ServerState::Header;
+                    content_length = 0;
+                }
+                ServerState::Exiting => break Ok(()),
             }
         }
     }
