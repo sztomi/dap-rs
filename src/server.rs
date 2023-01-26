@@ -94,6 +94,8 @@ impl<A: Adapter, C: Client + Context> Server<A, C> {
                     let Ok(buffer) = input.read_line().await else {
                         return Err(ServerError::IoError)
                     };
+
+                    tracing::trace!("SEP: read line: {}", escape_crlf(&buffer));
                     if buffer == "\r\n" {
                         state = ServerState::Content;
                     } else {
@@ -112,6 +114,7 @@ impl<A: Adapter, C: Client + Context> Server<A, C> {
                     }
 
                     let payload = String::from_utf8_lossy(&payload).to_string();
+                    tracing::trace!("CONTENT: read content: {}", escape_crlf(&payload));
                     let request: Request = match serde_json::from_str(&payload) {
                         Ok(val) => val,
                         Err(e) => {
