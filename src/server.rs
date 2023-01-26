@@ -51,6 +51,7 @@ impl<A: Adapter, C: Client + Context> Server<A, C> {
         loop {
             match input.read_line().await {
                 Ok(mut buffer) => {
+                    tracing::trace!("read line: {buffer}");
                     if buffer.is_empty() {
                         break Ok(());
                     }
