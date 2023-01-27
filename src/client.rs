@@ -9,6 +9,7 @@ pub type Result<T> = std::result::Result<T, ClientError>;
 
 /// A simple writer to the stdout, used by the server to send replies back
 /// to the IDE
+#[derive(Clone, Debug)]
 pub struct StdoutWriter {
     should_exit: bool,
 }
