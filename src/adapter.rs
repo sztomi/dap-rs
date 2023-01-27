@@ -1,4 +1,4 @@
-use crate::{client::Context, requests::Request, responses::Response};
+use crate::{requests::Request, responses::Response, client::StdoutWriter};
 use async_trait::async_trait;
 
 /// Trait for an debug adapter.
@@ -29,6 +29,6 @@ pub trait Adapter {
     async fn handle_request(
         &mut self,
         request: Request,
-        ctx: &mut dyn Context,
+        stdout_writer: &mut StdoutWriter,
     ) -> Result<Response, Self::Error>;
 }

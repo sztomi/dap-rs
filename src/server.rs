@@ -2,8 +2,7 @@ use serde_json;
 use std::fmt::Debug;
 
 use crate::adapter::Adapter;
-use crate::client::Client;
-use crate::client::Context;
+use crate::client::StdoutWriter;
 use crate::errors::{DeserializationError, ServerError};
 use crate::line_reader::LineReader;
 use crate::prelude::ResponseBody;
@@ -26,9 +25,9 @@ enum ServerState {
 /// The `Server` is responsible for reading the incoming bytestream and constructing deserialized
 /// requests from it; calling the `accept` function of the `Adapter` and passing the response
 /// to the client.
-pub struct Server<A: Adapter, C: Client + Context> {
+pub struct Server<A: Adapter> {
     adapter: A,
-    client: C,
+    client: StdoutWriter,
 }
 
 fn escape_crlf(instr: &String) -> String {
@@ -37,9 +36,9 @@ fn escape_crlf(instr: &String) -> String {
     str
 }
 
-impl<A: Adapter, C: Client + Context> Server<A, C> {
+impl<A: Adapter> Server<A> {
     /// Construct a new Server and take ownership of the adapter and client.
-    pub fn new(adapter: A, client: C) -> Self {
+    pub fn new(adapter: A, client: StdoutWriter) -> Self {
         Self { adapter, client }
     }
 
@@ -129,7 +128,7 @@ impl<A: Adapter, C: Client + Context> Server<A, C> {
                             Some(ResponseBody::Empty) => (),
                             _ => {
                                 self.client
-                                    .respond(response)
+                                    .send_response(response)
                                     .map_err(ServerError::ClientError)?;
                             }
                         },
