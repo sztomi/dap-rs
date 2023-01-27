@@ -131,7 +131,7 @@ pub struct SetFunctionBreakpointsArguments {
 }
 
 //// Arguments for a Launch request.
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 pub struct LaunchRequestArguments {
     /// If true, the launch request should launch the program without enabling
