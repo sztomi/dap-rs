@@ -16,6 +16,10 @@ pub struct StdoutWriter {
 
 /// Trait for sending events and requests to the connected client.
 impl StdoutWriter {
+    pub fn new() -> Self {
+        StdoutWriter { should_exit: false }
+    }
+
     /// Sends an even to the IDE.
     pub fn send_event(&mut self, event: Event) -> Result<()> {
         self.write(Sendable::Event(event))
