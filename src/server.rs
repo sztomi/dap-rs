@@ -14,8 +14,6 @@ use crate::requests::Request;
 enum ServerState {
   /// Expecting a header
   Header,
-  /// Expecting a separator between header and content, i.e. "\r\n"
-  Sep,
   /// Expecting content
   Content,
   /// Wants to exit
@@ -68,7 +66,7 @@ impl<A: Adapter, C: Client + Context> Server<A, C> {
                     };
                     buffer.clear();
                     buffer.reserve(content_length);
-                    state = ServerState::Sep;
+                    state = ServerState::Content;
                   }
                   other => {
                     return Err(ServerError::UnknownHeader {
@@ -80,20 +78,19 @@ impl<A: Adapter, C: Client + Context> Server<A, C> {
                 return Err(ServerError::HeaderParseError { line: buffer });
               }
             }
-            ServerState::Sep => {
-              if buffer == "\r\n" {
-                state = ServerState::Content;
-                buffer.clear();
-              }
-            }
             ServerState::Content => {
-              while read_size < content_length {
-                read_size += input.read_line(&mut buffer).unwrap();
+              buffer.clear();
+              let mut content = vec![0; content_length];
+              if input.read_exact(content.as_mut_slice()).is_err() {
+                return Err(ServerError::IoError);
               }
-              let request: Request = match serde_json::from_str(&buffer) {
-                Ok(val) => val,
-                Err(e) => return Err(ServerError::ParseError(DeserializationError::SerdeError(e))),
-              };
+              let request: Request =
+                match serde_json::from_str(std::str::from_utf8(content.as_slice()).unwrap()) {
+                  Ok(val) => val,
+                  Err(e) => {
+                    return Err(ServerError::ParseError(DeserializationError::SerdeError(e)));
+                  }
+                };
               match self.adapter.accept(request, &mut self.client) {
                 Ok(response) => match response.body {
                   Some(ResponseBody::Empty) => (),
