@@ -39,10 +39,12 @@ fromstr_deser! {PathFormat}
 #[serde(rename_all = "camelCase")]
 pub struct InitializeArguments {
   /// The ID of the client using this adapter.
+  #[serde(rename = "clientID")]
   pub client_id: Option<String>,
   /// The human-readable name of the client using this adapter.
   pub client_name: Option<String>,
   /// The ID of the debug adapter.
+  #[serde(rename = "adapterID")]
   pub adapter_id: String,
   /// The ISO-639 locale of the client using this adapter, e.g. en-US or de-CH.
   pub locale: Option<String>,
