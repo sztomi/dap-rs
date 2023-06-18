@@ -1,14 +1,15 @@
 use std::fmt::Debug;
-use std::io::BufRead;
+use std::io::{BufRead, BufReader, BufWriter, Read, Write};
 
 use serde_json;
 
-use crate::adapter::Adapter;
-use crate::client::Client;
-use crate::client::Context;
 use crate::errors::{DeserializationError, ServerError};
-use crate::prelude::ResponseBody;
+use crate::protocol_message::Sendable;
 use crate::requests::Request;
+use crate::{
+  events::Event, protocol_message::DAPMessage, responses::Response,
+  reverse_requests::ReverseRequest,
+};
 
 #[derive(Debug)]
 enum ServerState {
@@ -16,8 +17,6 @@ enum ServerState {
   Header,
   /// Expecting content
   Content,
-  /// Wants to exit
-  Exiting,
 }
 
 /// Ties together an Adapter and a Client.
@@ -25,34 +24,41 @@ enum ServerState {
 /// The `Server` is responsible for reading the incoming bytestream and constructing deserialized
 /// requests from it; calling the `accept` function of the `Adapter` and passing the response
 /// to the client.
-pub struct Server<A: Adapter, C: Client + Context> {
-  adapter: A,
-  client: C,
+pub struct Server<R: Read, W: Write> {
+  input_buffer: BufReader<R>,
+  output_buffer: BufWriter<W>,
+  seq: i64,
 }
 
-impl<A: Adapter, C: Client + Context> Server<A, C> {
+impl<R: Read, W: Write> Server<R, W> {
   /// Construct a new Server and take ownership of the adapter and client.
-  pub fn new(adapter: A, client: C) -> Self {
-    Self { adapter, client }
+  pub fn new(input: BufReader<R>, output: BufWriter<W>) -> Self {
+    Self {
+      input_buffer: input,
+      output_buffer: output,
+      seq: 0,
+    }
+  }
+
+  fn next_seq(&mut self) -> i64 {
+    self.seq += 1;
+    self.seq
   }
 
   /// Run the server.
   ///
   /// This will start reading the `input` buffer that is passed to it and will try to interpert
   /// the incoming bytes according to the DAP protocol.
-  pub fn run<Buf: BufRead>(&mut self, input: &mut Buf) -> Result<(), ServerError<A::Error>>
-  where
-    <A as Adapter>::Error: Debug + Sized,
-  {
+  pub fn poll_request(&mut self) -> Result<Option<Request>, ServerError> {
     let mut state = ServerState::Header;
     let mut buffer = String::new();
     let mut content_length: usize = 0;
 
     loop {
-      match input.read_line(&mut buffer) {
-        Ok(mut read_size) => {
+      match self.input_buffer.read_line(&mut buffer) {
+        Ok(read_size) => {
           if read_size == 0 {
-            break Ok(());
+            break Ok(None);
           }
           match state {
             ServerState::Header => {
@@ -81,7 +87,11 @@ impl<A: Adapter, C: Client + Context> Server<A, C> {
             ServerState::Content => {
               buffer.clear();
               let mut content = vec![0; content_length];
-              if input.read_exact(content.as_mut_slice()).is_err() {
+              if self
+                .input_buffer
+                .read_exact(content.as_mut_slice())
+                .is_err()
+              {
                 return Err(ServerError::IoError);
               }
               let request: Request =
@@ -91,32 +101,51 @@ impl<A: Adapter, C: Client + Context> Server<A, C> {
                     return Err(ServerError::ParseError(DeserializationError::SerdeError(e)));
                   }
                 };
-              match self.adapter.accept(request, &mut self.client) {
-                Ok(response) => match response.body {
-                  Some(ResponseBody::Empty) => (),
-                  _ => {
-                    self
-                      .client
-                      .respond(response)
-                      .map_err(ServerError::ClientError)?;
-                  }
-                },
-                Err(e) => return Err(ServerError::AdapterError(e)),
-              }
 
-              if self.client.get_exit_state() {
-                state = ServerState::Exiting;
-                continue;
-              }
-
-              state = ServerState::Header;
-              buffer.clear();
+              return Ok(Some(request));
             }
-            ServerState::Exiting => break Ok(()),
           }
         }
         Err(_) => return Err(ServerError::IoError),
       }
     }
+  }
+
+  pub fn send(&mut self, message: DAPMessage) -> Result<(), ServerError> {
+    let resp_json = serde_json::to_string(&message).map_err(ServerError::SerializationError)?;
+    write!(
+      self.output_buffer,
+      "Content-Length: {}\r\n\r\n",
+      resp_json.len()
+    )
+    .unwrap();
+
+    write!(self.output_buffer, "{}\r\n", resp_json).unwrap();
+    self.output_buffer.flush().unwrap();
+    Ok(())
+  }
+
+  pub fn respond(&mut self, response: Response) -> Result<(), ServerError> {
+    let message = DAPMessage {
+      seq: self.next_seq(),
+      message: Sendable::Response(response),
+    };
+    self.send(message)
+  }
+
+  pub fn send_event(&mut self, event: Event) -> Result<(), ServerError> {
+    let message = DAPMessage {
+      seq: self.next_seq(),
+      message: Sendable::Event(event),
+    };
+    self.send(message)
+  }
+
+  pub fn send_reverse_request(&mut self, request: ReverseRequest) -> Result<(), ServerError> {
+    let message = DAPMessage {
+      seq: self.next_seq(),
+      message: Sendable::ReverseRequest(request),
+    };
+    self.send(message)
   }
 }

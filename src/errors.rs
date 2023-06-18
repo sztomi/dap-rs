@@ -1,5 +1,5 @@
-use thiserror::Error;
 use std::fmt::Debug;
+use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum DeserializationError {
@@ -10,7 +10,7 @@ pub enum DeserializationError {
 }
 
 #[derive(Debug, Error)]
-pub enum ServerError<AE: Debug> {
+pub enum ServerError {
   #[error("I/O error")]
   IoError,
 
@@ -26,24 +26,9 @@ pub enum ServerError<AE: Debug> {
   #[error("Protocol error while reading line '{line}', reason: '{reason}'")]
   ProtocolError { reason: String, line: String },
 
-  #[error("Error while sending to client")]
-  ClientError(#[from] ClientError),
-
-  #[error(transparent)]
-  AdapterError(AE),
-}
-
-#[derive(Debug, Error)]
-pub enum AdapterError {
-  #[error("Trying to contruct a non-sense response (such as an ACK for a request that requires a response body")]
-  ResponseContructError,
-}
-
-#[derive(Debug, Error)]
-pub enum ClientError {
-  #[error("I/O error")]
-  IoError(#[from] std::io::Error),
-
   #[error("Serialization error")]
   SerializationError(#[from] serde_json::Error),
+
+  #[error("Could not construct response")]
+  ResponseContructError,
 }
