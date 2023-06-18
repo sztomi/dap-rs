@@ -149,3 +149,66 @@ impl<R: Read, W: Write> Server<R, W> {
     self.send(message)
   }
 }
+
+#[cfg(test)]
+mod tests {
+
+  use super::*;
+  use std::sync::mpsc;
+  use std::sync::mpsc::{Receiver, Sender};
+
+  struct TestSender {
+    sender: Sender<u8>,
+  }
+
+  impl Write for TestSender {
+    fn write(&mut self, buf: &[u8]) -> Result<usize, std::io::Error> {
+      let mut i = 0;
+      let loop_to = buf.len();
+
+      while i < loop_to {
+        self.sender.send(buf[i]).unwrap();
+        i += 1;
+      }
+
+      Ok(loop_to)
+    }
+    fn flush(&mut self) -> Result<(), std::io::Error> {
+      Ok(())
+    }
+  }
+
+  struct TestRecv {
+    recv: Receiver<u8>,
+  }
+
+  impl Read for TestRecv {
+    fn read(&mut self, buf: &mut [u8]) -> Result<usize, std::io::Error> {
+      let mut i = 0;
+      while let Ok(d) = self.recv.try_recv() {
+        buf[i] = d;
+        i += 1;
+      }
+      Ok(i)
+    }
+  }
+
+  fn create_test_pair() -> (TestRecv, TestSender) {
+    let (sender, recv) = mpsc::channel();
+    (TestRecv { recv }, TestSender { sender })
+  }
+
+  #[test]
+  fn test_server_init_request() {
+    let (mut server_in, mut test_out) = create_test_pair();
+    let (mut test_in, mut server_out) = create_test_pair();
+
+    let mut server = Server::new(BufReader::new(server_in), BufWriter::new(server_out));
+
+    write!(test_out, "Content-Length: 515\n\n");
+    test_out.write(b"{\"command\":\"initialize\",\"arguments\":{\"clientID\":\"vscode\",\"clientName\":\"Visual Studio Code\",\"adapterID\":\"retread\",\"pathFormat\":\"path\",\"linesStartAt1\":true,\"columnsStartAt1\":true,\"supportsVariableType\":true,\"supportsVariablePaging\":true,\"supportsRunInTerminalRequest\":true,\"locale\":\"en\",\"supportsProgressReporting\":true,\"supportsInvalidatedEvent\":true,\"supportsMemoryReferences\":true,\"supportsArgsCanBeInterpretedByShell\":true,\"supportsMemoryEvent\":true,\"supportsStartDebuggingRequest\":true},\"type\":\"request\",\"seq\":1}");
+
+    let req = server.poll_request();
+    assert_eq!(req.unwrap().unwrap().seq, 1);
+  }
+}
