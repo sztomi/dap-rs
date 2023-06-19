@@ -1,17 +1,16 @@
-on: [push]
+name: Build and test
 
-name: CI
+on: [push, pull_request]
+
+env:
+  CARGO_TERM_COLOR: always
 
 jobs:
-  build_and_test:
-    name: dap-rs test
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-      - uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --all
+      - uses: actions/checkout@v3
+      - name: Build
+        run: cargo build
+      - name: Run tests
+        run: cargo test

@@ -1,4 +1,5 @@
 # dap-rs, a Rust implementation of the Debug Adapter Protocol
+![build-status](https://github.com/pileghoff/dap-rs/actions/workflows/ci.yml/badge.svg)
 
 ## Introduction
 
