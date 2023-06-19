@@ -153,6 +153,8 @@ impl<R: Read, W: Write> Server<R, W> {
 #[cfg(test)]
 mod tests {
 
+  use crate::requests::Command;
+
   use super::*;
   use std::sync::mpsc;
   use std::sync::mpsc::{Receiver, Sender};
@@ -208,7 +210,8 @@ mod tests {
     write!(test_out, "Content-Length: 515\r\n\r\n");
     test_out.write(b"{\"command\":\"initialize\",\"arguments\":{\"clientID\":\"vscode\",\"clientName\":\"Visual Studio Code\",\"adapterID\":\"retread\",\"pathFormat\":\"path\",\"linesStartAt1\":true,\"columnsStartAt1\":true,\"supportsVariableType\":true,\"supportsVariablePaging\":true,\"supportsRunInTerminalRequest\":true,\"locale\":\"en\",\"supportsProgressReporting\":true,\"supportsInvalidatedEvent\":true,\"supportsMemoryReferences\":true,\"supportsArgsCanBeInterpretedByShell\":true,\"supportsMemoryEvent\":true,\"supportsStartDebuggingRequest\":true},\"type\":\"request\",\"seq\":1}");
 
-    let req = server.poll_request();
-    assert_eq!(req.unwrap().unwrap().seq, 1);
+    let req = server.poll_request().unwrap().unwrap();
+    assert_eq!(req.seq, 1);
+    assert!(matches!(req.command, Command::Initialize { .. }));
   }
 }
