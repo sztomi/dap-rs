@@ -205,7 +205,7 @@ mod tests {
 
     let mut server = Server::new(BufReader::new(server_in), BufWriter::new(server_out));
 
-    write!(test_out, "Content-Length: 515\n\n");
+    write!(test_out, "Content-Length: 515\r\n\r\n");
     test_out.write(b"{\"command\":\"initialize\",\"arguments\":{\"clientID\":\"vscode\",\"clientName\":\"Visual Studio Code\",\"adapterID\":\"retread\",\"pathFormat\":\"path\",\"linesStartAt1\":true,\"columnsStartAt1\":true,\"supportsVariableType\":true,\"supportsVariablePaging\":true,\"supportsRunInTerminalRequest\":true,\"locale\":\"en\",\"supportsProgressReporting\":true,\"supportsInvalidatedEvent\":true,\"supportsMemoryReferences\":true,\"supportsArgsCanBeInterpretedByShell\":true,\"supportsMemoryEvent\":true,\"supportsStartDebuggingRequest\":true},\"type\":\"request\",\"seq\":1}");
 
     let req = server.poll_request();
