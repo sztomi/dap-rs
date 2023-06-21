@@ -1,10 +1,13 @@
 use std::io::{BufWriter, Write};
 
-use serde::Serialize;
 use serde_json;
 
 use crate::{
-  errors::ClientError, events::Event, responses::Response, reverse_requests::ReverseRequest,
+  base_message::{BaseMessage, Sendable},
+  errors::ClientError,
+  events::Event,
+  responses::Response,
+  reverse_requests::ReverseRequest,
 };
 
 pub type Result<T> = std::result::Result<T, ClientError>;
@@ -38,14 +41,7 @@ pub trait Context {
 pub struct BasicClient<W: Write> {
   stream: BufWriter<W>,
   should_exit: bool,
-}
-
-#[derive(Serialize, Debug)]
-#[serde(untagged)]
-enum Sendable {
-  Response(Response),
-  Event(Event),
-  ReverseRequest(ReverseRequest),
+  sequence_number: i64,
 }
 
 impl<W: Write> BasicClient<W> {
@@ -53,11 +49,17 @@ impl<W: Write> BasicClient<W> {
     Self {
       stream: BufWriter::new(stream),
       should_exit: false,
+      sequence_number: 0,
     }
   }
 
   fn send(&mut self, s: Sendable) -> Result<()> {
-    let resp_json = serde_json::to_string(&s).map_err(ClientError::SerializationError)?;
+    self.sequence_number += 1;
+    let message = BaseMessage {
+      seq: self.sequence_number,
+      message: s,
+    };
+    let resp_json = serde_json::to_string(&message).map_err(ClientError::SerializationError)?;
     write!(self.stream, "Content-Length: {}\r\n\r\n", resp_json.len())
       .map_err(ClientError::IoError)?;
     write!(self.stream, "{}\r\n", resp_json).map_err(ClientError::IoError)?;
