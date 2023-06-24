@@ -1,5 +1,5 @@
-use thiserror::Error;
 use std::fmt::Debug;
+use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum DeserializationError {
@@ -12,7 +12,7 @@ pub enum DeserializationError {
 #[derive(Debug, Error)]
 pub enum ServerError<AE: Debug> {
   #[error("I/O error")]
-  IoError,
+  IoError(std::io::Error),
 
   #[error("Unknown header: {header}")]
   UnknownHeader { header: String },

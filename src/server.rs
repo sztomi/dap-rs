@@ -50,7 +50,7 @@ impl<A: Adapter, C: Client + Context> Server<A, C> {
 
     loop {
       match input.read_line(&mut buffer) {
-        Ok(mut read_size) => {
+        Ok(read_size) => {
           if read_size == 0 {
             break Ok(());
           }
@@ -81,9 +81,9 @@ impl<A: Adapter, C: Client + Context> Server<A, C> {
             ServerState::Content => {
               buffer.clear();
               let mut content = vec![0; content_length];
-              if input.read_exact(content.as_mut_slice()).is_err() {
-                return Err(ServerError::IoError);
-              }
+              input
+                .read_exact(content.as_mut_slice())
+                .map_err(ServerError::IoError)?;
               let request: Request =
                 match serde_json::from_str(std::str::from_utf8(content.as_slice()).unwrap()) {
                   Ok(val) => val,
@@ -115,7 +115,7 @@ impl<A: Adapter, C: Client + Context> Server<A, C> {
             ServerState::Exiting => break Ok(()),
           }
         }
-        Err(_) => return Err(ServerError::IoError),
+        Err(e) => return Err(ServerError::IoError(e)),
       }
     }
   }

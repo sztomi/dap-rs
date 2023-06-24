@@ -74,7 +74,7 @@ pub struct ColumnDescriptor {
   pub width: Option<i64>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub enum ChecksumAlgorithm {
   MD5,
   SHA1,
@@ -211,7 +211,7 @@ pub struct Capabilities {
 /// specifying breakpoints.
 ///
 /// Specification: [Source](https://microsoft.github.io/debug-adapter-protocol/specification#Types_Source)
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct Source {
   /// The short name of the source. Every source returned from the debug adapter
   /// has a name.
@@ -230,7 +230,7 @@ pub struct Source {
   /// A hint for how to present the source in the UI.
   /// A value of `deemphasize` can be used to indicate that the source is not
   /// available or that it is skipped on stepping.
-  pub presentation_hint: PresentationHint,
+  pub presentation_hint: Option<PresentationHint>,
   /// The origin of this source. For example, 'internal module', 'inlined content
   /// from source map', etc.
   pub origin: Option<String>,
@@ -272,7 +272,7 @@ pub struct SourceBreakpoint {
 
 /// Information about a breakpoint created in setBreakpoints, setFunctionBreakpoints,
 /// setInstructionBreakpoints, or setDataBreakpoints requests.
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 pub struct Breakpoint {
   /// The identifier for the breakpoint. It is needed if breakpoint events are
   /// used to update or remove breakpoints.
@@ -307,7 +307,7 @@ pub struct Breakpoint {
   pub offset: Option<i64>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub enum PresentationHint {
   #[serde(rename = "normal")]
   Normal,
@@ -335,7 +335,7 @@ impl FromStr for PresentationHint {
 
 fromstr_deser! {PresentationHint}
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Checksum {
   /// The algorithm used to calculate this checksum.
   pub algorithm: ChecksumAlgorithm,
