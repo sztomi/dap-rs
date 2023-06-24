@@ -84,13 +84,11 @@ impl<A: Adapter, C: Client + Context> Server<A, C> {
               input
                 .read_exact(content.as_mut_slice())
                 .map_err(ServerError::IoError)?;
-              let request: Request =
-                match serde_json::from_str(std::str::from_utf8(content.as_slice()).unwrap()) {
-                  Ok(val) => val,
-                  Err(e) => {
-                    return Err(ServerError::ParseError(DeserializationError::SerdeError(e)));
-                  }
-                };
+
+              let content = std::str::from_utf8(content.as_slice())
+                .map_err(|e| ServerError::ParseError(DeserializationError::DecodingError(e)))?;
+              let request: Request = serde_json::from_str(content)
+                .map_err(|e| ServerError::ParseError(DeserializationError::SerdeError(e)))?;
               match self.adapter.accept(request, &mut self.client) {
                 Ok(response) => match response.body {
                   Some(ResponseBody::Empty) => (),

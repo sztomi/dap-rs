@@ -7,6 +7,8 @@ pub enum DeserializationError {
   StringToEnumParseError { enum_name: String, value: String },
   #[error("Error while deserializing")]
   SerdeError(#[from] serde_json::Error),
+  #[error("Error decoding character stream")]
+  DecodingError(std::str::Utf8Error),
 }
 
 #[derive(Debug, Error)]
