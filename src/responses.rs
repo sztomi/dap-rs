@@ -11,7 +11,7 @@ use crate::{
 };
 
 /// Represents a response message that is either a cancellation or a short error string.
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub enum ResponseMessage {
   /// Should be sent when the request was canceled
   Cancelled,
@@ -20,19 +20,19 @@ pub enum ResponseMessage {
   Error(String),
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 pub struct BreakpointLocationsResponse {
   /// Sorted set of possible breakpoint locations.
   pub breakpoints: Vec<BreakpointLocation>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 pub struct CompletionsResponse {
   /// The possible completions
   pub targets: Vec<CompletionItem>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 pub struct ContinueResponse {
   /// The value true (or a missing property) signals to the client that all
   /// threads have been resumed. The value false indicates that not all threads
@@ -40,7 +40,7 @@ pub struct ContinueResponse {
   pub all_threads_continued: Option<bool>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 pub struct DataBreakpointInfoResponse {
   /// An identifier for the data on which a data breakpoint can be registered
   /// with the `setDataBreakpoints` request or null if no data breakpoint is
@@ -57,13 +57,13 @@ pub struct DataBreakpointInfoResponse {
   pub can_persist: Option<bool>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 pub struct DisassembleResponse {
   /// The list of disassembled instructions.
   pub instructions: Vec<DisassembledInstruction>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct EvaluateResponse {
   /// The result of the evaluate request.
@@ -99,7 +99,7 @@ pub struct EvaluateResponse {
   pub memory_reference: Option<String>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ExceptionInfoResponse {
   /// ID of the exception that was thrown.
@@ -112,21 +112,21 @@ pub struct ExceptionInfoResponse {
   pub details: Option<ExceptionDetails>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct GotoTargetsResponse {
   /// The possible goto targets of the specified location.
   pub targets: Vec<GotoTarget>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct LoadedSourcesResponse {
   /// Set of loaded sources.
   pub sources: Vec<Source>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ModulesResponse {
   /// All modules or range of modules.
@@ -135,7 +135,7 @@ pub struct ModulesResponse {
   pub total_modules: Option<i64>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ReadMemoryResponse {
   /// The address of the first byte of data returned.
@@ -151,7 +151,7 @@ pub struct ReadMemoryResponse {
   pub data: Option<String>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ScopesResponse {
   /// The scopes of the stackframe. If the array has length zero, there are no
@@ -159,7 +159,7 @@ pub struct ScopesResponse {
   pub scopes: Vec<Scope>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct SetBreakpointsResponse {
   /// Information about the breakpoints.
@@ -168,7 +168,7 @@ pub struct SetBreakpointsResponse {
   pub breakpoints: Vec<Breakpoint>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct SetDataBreakpointsResponse {
   /// Information about the breakpoints.
@@ -177,7 +177,7 @@ pub struct SetDataBreakpointsResponse {
   pub breakpoints: Vec<Breakpoint>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct SetExceptionBreakpointsResponse {
   /// Information about the exception breakpoints or filters.
@@ -189,7 +189,7 @@ pub struct SetExceptionBreakpointsResponse {
   pub breakpoints: Option<Vec<Breakpoint>>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct SetFunctionBreakpointsResponse {
   /// Information about the breakpoints. The array elements correspond to the
@@ -197,7 +197,7 @@ pub struct SetFunctionBreakpointsResponse {
   pub breakpoints: Vec<Breakpoint>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct SetInstructionBreakpointsResponse {
   /// Information about the breakpoints. The array elements correspond to the
@@ -205,7 +205,7 @@ pub struct SetInstructionBreakpointsResponse {
   pub breakpoints: Vec<Breakpoint>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct SetVariableResponse {
   /// The new value of the variable.
@@ -231,7 +231,7 @@ pub struct SetVariableResponse {
   pub indexed_variables: Option<i64>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct SourceResponse {
   /// Content of the source reference.
@@ -240,7 +240,7 @@ pub struct SourceResponse {
   pub mime_type: Option<String>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct SetExpressionResponse {
   /// The new value of the expression.
@@ -270,7 +270,7 @@ pub struct SetExpressionResponse {
   pub indexed_variables: Option<i64>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct StackTraceResponse {
   /// The frames of the stackframe. If the array has length zero, there are no
@@ -286,21 +286,21 @@ pub struct StackTraceResponse {
   pub total_frames: Option<i64>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ThreadsResponse {
   /// All threads.
   pub threads: Vec<Thread>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct VariablesResponse {
   /// All (or a range) of variables for the given variable reference.
   pub variables: Vec<Variable>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct WriteMemoryResponse {
   /// Property that should be returned when `allowPartial` is true to indicate
@@ -312,7 +312,7 @@ pub struct WriteMemoryResponse {
   pub bytes_written: Option<i64>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 #[serde(tag = "command", content = "body", rename_all = "camelCase")]
 pub enum ResponseBody {
   /// Response to attach request. This is just an acknowledgement, so no body field is required.
@@ -521,7 +521,7 @@ pub enum ResponseBody {
 /// ResponseBody enum.
 ///
 /// Specification: [Response](https://microsoft.github.io/debug-adapter-protocol/specification#Base_Protocol_Response)
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Response {
   /// Sequence number of the corresponding request.
