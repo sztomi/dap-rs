@@ -145,6 +145,9 @@ pub struct LaunchRequestArguments {
   /// an encoding that is suitable for string (e.g. base85 or similar).
   #[serde(rename = "__restart")]
   pub restart_data: Option<Value>,
+  /// The request may include additional implementation specific attributes.
+  #[serde(flatten)]
+  pub additional_data: Option<Value>,
 }
 
 //// Arguments for an Attach request.
@@ -156,6 +159,10 @@ pub struct AttachRequestArguments {
   /// The client should leave the data intact.
   #[serde(rename = "__restart")]
   pub restart_data: Option<Value>,
+
+  /// The request may include additional implementation specific attributes.
+  #[serde(flatten)]
+  pub additional_data: Option<Value>,
 }
 
 //// Arguments for a BreakpointLocations request.
