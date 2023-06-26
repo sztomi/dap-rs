@@ -7,7 +7,7 @@ use serde_json::Value;
 use crate::errors::DeserializationError;
 use crate::{fromstr_deser, tostr_ser};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct ExceptionBreakpointsFilter {
   /// The internal ID of the filter option. This value is passed to the
   /// `setExceptionBreakpoints` request.
@@ -28,7 +28,7 @@ pub struct ExceptionBreakpointsFilter {
   pub condition_description: Option<String>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 pub enum ColumnDescriptorType {
   String,
@@ -56,7 +56,7 @@ impl FromStr for ColumnDescriptorType {
 
 fromstr_deser! { ColumnDescriptorType }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 pub struct ColumnDescriptor {
   /// Name of the attribute rendered in this column.
@@ -74,7 +74,7 @@ pub struct ColumnDescriptor {
   pub width: Option<i64>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub enum ChecksumAlgorithm {
   MD5,
   SHA1,
@@ -102,7 +102,7 @@ impl FromStr for ChecksumAlgorithm {
 
 fromstr_deser! {ChecksumAlgorithm}
 
-#[derive(Serialize, Debug, Default)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Capabilities {
   /// The debug adapter supports the `configurationDone` request.
@@ -211,7 +211,7 @@ pub struct Capabilities {
 /// specifying breakpoints.
 ///
 /// Specification: [Source](https://microsoft.github.io/debug-adapter-protocol/specification#Types_Source)
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct Source {
   /// The short name of the source. Every source returned from the debug adapter
   /// has a name.
@@ -230,7 +230,7 @@ pub struct Source {
   /// A hint for how to present the source in the UI.
   /// A value of `deemphasize` can be used to indicate that the source is not
   /// available or that it is skipped on stepping.
-  pub presentation_hint: PresentationHint,
+  pub presentation_hint: Option<PresentationHint>,
   /// The origin of this source. For example, 'internal module', 'inlined content
   /// from source map', etc.
   pub origin: Option<String>,
@@ -245,7 +245,7 @@ pub struct Source {
   pub checksums: Option<Vec<Checksum>>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Default, Clone)]
 pub struct SourceBreakpoint {
   /// The source line of the breakpoint or logpoint.
   pub line: i64,
@@ -272,7 +272,7 @@ pub struct SourceBreakpoint {
 
 /// Information about a breakpoint created in setBreakpoints, setFunctionBreakpoints,
 /// setInstructionBreakpoints, or setDataBreakpoints requests.
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 pub struct Breakpoint {
   /// The identifier for the breakpoint. It is needed if breakpoint events are
   /// used to update or remove breakpoints.
@@ -307,7 +307,7 @@ pub struct Breakpoint {
   pub offset: Option<i64>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub enum PresentationHint {
   #[serde(rename = "normal")]
   Normal,
@@ -335,7 +335,7 @@ impl FromStr for PresentationHint {
 
 fromstr_deser! {PresentationHint}
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Checksum {
   /// The algorithm used to calculate this checksum.
   pub algorithm: ChecksumAlgorithm,
@@ -345,7 +345,7 @@ pub struct Checksum {
 
 /// An ExceptionFilterOptions is used to specify an exception filter together with a condition for
 /// the setExceptionBreakpoints request.
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 pub struct ExceptionFilterOptions {
   /// ID of an exception filter returned by the `exceptionBreakpointFilters`
@@ -361,7 +361,7 @@ pub struct ExceptionFilterOptions {
 /// break.
 ///
 /// Specification: [`ExceptionBreakMode`](https://microsoft.github.io/debug-adapter-protocol/specification#Types_ExceptionBreakMode)
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub enum ExceptionBreakMode {
   /// never breaks
   #[serde(rename = "never")]
@@ -402,7 +402,7 @@ fromstr_deser! { ExceptionBreakMode }
 /// or missing, or it matches anything except the names provided if negate is true.
 ///
 /// Specification: [`ExceptionPathSegment`](https://microsoft.github.io/debug-adapter-protocol/specification#Types_ExceptionPathSegment)
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 pub struct ExceptionPathSegment {
   /// If false or missing this segment matches the names provided, otherwise it
@@ -416,7 +416,7 @@ pub struct ExceptionPathSegment {
 /// An ExceptionOptions assigns configuration options to a set of exceptions.
 ///
 /// Specification: [`ExceptionOptions`](https://microsoft.github.io/debug-adapter-protocol/specification#Types_ExceptionOptions)
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 pub struct ExceptionOptions {
   /// A path that selects a single or multiple exceptions in a tree. If `path` is
@@ -431,7 +431,7 @@ pub struct ExceptionOptions {
 /// Properties of a breakpoint passed to the setFunctionBreakpoints request.
 ///
 /// Specification: [FunctionBreakpoint](https://microsoft.github.io/debug-adapter-protocol/specification#Types_FunctionBreakpoint)
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 pub struct FunctionBreakpoint {
   /// The name of the function.
@@ -447,7 +447,7 @@ pub struct FunctionBreakpoint {
   pub hit_condition: Option<String>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub enum StopReason {
   #[serde(rename = "step")]
   Step,
@@ -493,7 +493,7 @@ impl FromStr for StopReason {
 
 fromstr_deser! { StopReason }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub enum BreakpointEventReason {
   #[serde(rename = "changed")]
   Changed,
@@ -519,7 +519,7 @@ impl FromStr for BreakpointEventReason {
 
 fromstr_deser! { BreakpointEventReason }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum InvalidatedAreas {
   All,
   Stacks,
@@ -558,7 +558,7 @@ impl ToString for InvalidatedAreas {
 fromstr_deser! { InvalidatedAreas }
 tostr_ser! { InvalidatedAreas }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum LoadedSourceEventReason {
   New,
   Changed,
@@ -595,7 +595,7 @@ impl ToString for LoadedSourceEventReason {
 fromstr_deser! { LoadedSourceEventReason }
 tostr_ser! { LoadedSourceEventReason }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ModuleEventReason {
   New,
   Changed,
@@ -632,7 +632,7 @@ impl ToString for ModuleEventReason {
 fromstr_deser! { ModuleEventReason }
 tostr_ser! { ModuleEventReason }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub struct Module {
   /// Unique identifier for the module.
   pub id: ModuleId,
@@ -661,7 +661,7 @@ pub struct Module {
   pub address_range: Option<String>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ModuleId {
   Number,
   String(String),
@@ -691,7 +691,7 @@ impl ToString for ModuleId {
 fromstr_deser! { ModuleId }
 tostr_ser! { ModuleId }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum OutputEventCategory {
   Console,
   Important,
@@ -733,7 +733,7 @@ impl ToString for OutputEventCategory {
 fromstr_deser! { OutputEventCategory }
 tostr_ser! { OutputEventCategory }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum OutputEventGroup {
   Start,
   StartCollapsed,
@@ -770,7 +770,7 @@ impl ToString for OutputEventGroup {
 fromstr_deser! { OutputEventGroup }
 tostr_ser! { OutputEventGroup }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ProcessEventStartMethod {
   Launch,
   Attach,
@@ -807,7 +807,7 @@ impl ToString for ProcessEventStartMethod {
 fromstr_deser! { ProcessEventStartMethod }
 tostr_ser! { ProcessEventStartMethod }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum StoppedEventReason {
   Step,
   Breakpoint,
@@ -861,7 +861,7 @@ impl ToString for StoppedEventReason {
 fromstr_deser! { StoppedEventReason }
 tostr_ser! { StoppedEventReason }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ThreadEventReason {
   Started,
   Exited,
@@ -894,14 +894,14 @@ impl ToString for ThreadEventReason {
 fromstr_deser! { ThreadEventReason }
 tostr_ser! { ThreadEventReason }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 pub struct ValueFormat {
   /// Display the value in hex.
   pub hex: Option<bool>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 pub struct StackFrameFormat {
   /// Display the value in hex.
@@ -923,7 +923,7 @@ pub struct StackFrameFormat {
   pub include_all: Option<bool>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum EvaluateArgumentsContext {
   Variables,
   Watch,
@@ -965,7 +965,7 @@ impl ToString for EvaluateArgumentsContext {
 fromstr_deser! { EvaluateArgumentsContext }
 tostr_ser! { EvaluateArgumentsContext }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum SteppingGranularity {
   Statement,
   Line,
@@ -1002,7 +1002,7 @@ impl ToString for SteppingGranularity {
 fromstr_deser! { SteppingGranularity }
 tostr_ser! { SteppingGranularity }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum DataBreakpointAccessType {
   Read,
   Write,
@@ -1039,7 +1039,7 @@ impl ToString for DataBreakpointAccessType {
 fromstr_deser! { DataBreakpointAccessType }
 tostr_ser! { DataBreakpointAccessType }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 pub struct DataBreakpoint {
   /// An id representing the data. This id is returned from the
@@ -1057,7 +1057,7 @@ pub struct DataBreakpoint {
 /// Properties of a breakpoint passed to the setInstructionBreakpoints request
 ///
 /// Specfication: [InstructionBreakpoint](https://microsoft.github.io/debug-adapter-protocol/specification#Types_InstructionBreakpoint)
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 pub struct InstructionBreakpoint {
   /// The instruction reference of the breakpoint.
@@ -1079,7 +1079,7 @@ pub struct InstructionBreakpoint {
   pub hit_condition: Option<String>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum VariablesArgumentsFilter {
   Indexed,
   Named,
@@ -1116,7 +1116,7 @@ tostr_ser! { VariablesArgumentsFilter }
 /// Properties of a breakpoint location returned from the breakpointLocations request.
 
 /// Specfication: [BreakpointLocation](https://microsoft.github.io/debug-adapter-protocol/specification#Types_BreakpointLocation)
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 pub struct BreakpointLocation {
   /// Start line of breakpoint location.
@@ -1137,7 +1137,7 @@ pub struct BreakpointLocation {
 /// icons for all of them
 ///
 /// Specification: [CompletionItemType](https://microsoft.github.io/debug-adapter-protocol/specification#Types_CompletionItemType)
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 pub enum CompletionItemType {
   Method,
@@ -1225,7 +1225,7 @@ fromstr_deser! { CompletionItemType }
 /// `CompletionItems` are the suggestions returned from the `completions` request.
 ///
 /// Specification: [CompletionItem](https://microsoft.github.io/debug-adapter-protocol/specification#Types_CompletionItem)
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 pub struct CompletionItem {
   /// The label of this completion item. By default this is also the text that is
@@ -1269,7 +1269,7 @@ pub struct CompletionItem {
 /// Represents a single disassembled instruction.
 ///
 /// Specification: [DisassembledInstruction](https://microsoft.github.io/debug-adapter-protocol/specification#Types_DisassembledInstruction)
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 pub struct DisassembledInstruction {
   /// The address of the instruction. Treated as a hex value if prefixed with
@@ -1300,7 +1300,7 @@ pub struct DisassembledInstruction {
   pub end_column: Option<i64>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum VariablePresentationHintKind {
   /// Indicates that the object is a property.
   Property,
@@ -1377,7 +1377,7 @@ tostr_ser! { VariablePresentationHintKind }
 
 /// Set of attributes represented as an array of Strings. Before introducing
 /// additional values, try to use the listed values.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum VariablePresentationHintAttributes {
   /// Indicates that the object is static.
   Static,
@@ -1438,7 +1438,7 @@ impl ToString for VariablePresentationHintAttributes {
 fromstr_deser! { VariablePresentationHintAttributes }
 tostr_ser! { VariablePresentationHintAttributes }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum VariablePresentationHintVisibility {
   Public,
   Private,
@@ -1482,7 +1482,7 @@ impl ToString for VariablePresentationHintVisibility {
 fromstr_deser! { VariablePresentationHintVisibility }
 tostr_ser! { VariablePresentationHintVisibility }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 pub struct VariablePresentationHint {
   /// The kind of variable. Before introducing additional values, try to use the
@@ -1509,7 +1509,7 @@ pub struct VariablePresentationHint {
 /// Detailed information about an exception that has occurred.
 ///
 /// Specification: [ExceptionDetails](https://microsoft.github.io/debug-adapter-protocol/specification#Types_ExceptionDetails)
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 pub struct ExceptionDetails {
   /// Message contained in the exception.
@@ -1532,7 +1532,7 @@ pub struct ExceptionDetails {
 /// The possible goto targets can be determined via the gotoTargets request.
 ///
 /// Specification: [GotoTarget](https://microsoft.github.io/debug-adapter-protocol/specification#Types_GotoTarget)
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 pub struct GotoTarget {
   /// Unique identifier for a goto target. This is used in the `goto` request.
@@ -1556,7 +1556,7 @@ pub struct GotoTarget {
 /// missing, the scope is shown with a generic UI.
 ///
 /// Specification: [Scope](https://microsoft.github.io/debug-adapter-protocol/specification#Types_Scope)
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ScopePresentationhint {
   /// Scope contains method arguments.
   Arguments,
@@ -1600,7 +1600,7 @@ tostr_ser! { ScopePresentationhint }
 /// within a source.
 ///
 /// Specification: [Scope](https://microsoft.github.io/debug-adapter-protocol/specification#Types_Scope)
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 pub struct Scope {
   /// Name of the scope such as 'Arguments', 'Locals', or 'Registers'. This
@@ -1645,7 +1645,7 @@ pub struct Scope {
   pub end_column: Option<i64>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum StackFrameModuleid {
   Number,
   String(String),
@@ -1675,7 +1675,7 @@ impl ToString for StackFrameModuleid {
 fromstr_deser! { StackFrameModuleid }
 tostr_ser! { StackFrameModuleid }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum StackFramePresentationhint {
   Normal,
   Label,
@@ -1715,7 +1715,7 @@ tostr_ser! { StackFramePresentationhint }
 /// A Stackframe contains the source location.
 ///
 /// Specification: [StackFrame](https://microsoft.github.io/debug-adapter-protocol/specification#Types_StackFrame)
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 pub struct StackFrame {
   /// An identifier for the stack frame. It must be unique across all threads.
@@ -1759,7 +1759,7 @@ pub struct StackFrame {
 /// A thread.
 ///
 /// Specification: [Thread](https://microsoft.github.io/debug-adapter-protocol/specification#Types_Thread)
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 pub struct Thread {
   /// Unique identifier for the thread.
@@ -1783,7 +1783,7 @@ pub struct Thread {
 ///
 /// The client can use this information to present the children in a paged UI and fetch them in
 /// chunks.
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 pub struct Variable {
   /// The variable's name.
@@ -1827,7 +1827,7 @@ pub struct Variable {
   pub memory_reference: Option<String>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum RunInTerminalRequestArgumentsKind {
   Integrated,
   External,
@@ -1860,7 +1860,7 @@ impl ToString for RunInTerminalRequestArgumentsKind {
 
 tostr_ser! { RunInTerminalRequestArgumentsKind }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum StartDebuggingRequestKind {
   Launch,
   Attach,
