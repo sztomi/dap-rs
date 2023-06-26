@@ -4,7 +4,7 @@ use serde::Serialize;
 
 use crate::types::{RunInTerminalRequestArgumentsKind, StartDebuggingRequestKind};
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 pub struct RunInTerminalRequestArguments {
   /// What kind of terminal to launch.
@@ -29,7 +29,7 @@ pub struct RunInTerminalRequestArguments {
   pub args_can_be_interpreted_by_shell: Option<bool>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 pub struct StartDebuggingRequestArguments {
   /// Arguments passed to the new debug session. The arguments must only contain
@@ -43,7 +43,7 @@ pub struct StartDebuggingRequestArguments {
   pub request: StartDebuggingRequestKind,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 #[serde(
   tag = "command",
   content = "arguments",
@@ -88,7 +88,7 @@ pub enum ReverseCommand {
 /// beneficial to separate them because then we don't need to generate a huge
 /// amount of serialization code for all requests and supporting types (that the
 /// vast majority of would never be serialized by the adapter, only deserialized).
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 pub struct ReverseRequest {
   /// Sequence number for the Request.
