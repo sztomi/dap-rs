@@ -8,7 +8,7 @@ use crate::types::{
 };
 
 //// Arguments for a Breakpoint event.
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct BreakpointEventBody {
   /// The reason for the event.
@@ -20,14 +20,14 @@ pub struct BreakpointEventBody {
 }
 
 //// Arguments for a Capabilities event
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct CapabilitiesEventBody {
   pub capabilities: Capabilities,
 }
 
 //// Arguments for a Continued event.
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ContinuedEventBody {
   /// The thread which was continued.
@@ -38,7 +38,7 @@ pub struct ContinuedEventBody {
 }
 
 //// Arguments for a Exited event
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ExitedEventBody {
   /// The exit code returned from the debuggee.
@@ -46,7 +46,7 @@ pub struct ExitedEventBody {
 }
 
 //// Arguments for a Invalidated event
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct InvalidatedEventBody {
   /// Set of logical areas that got invalidated. This property has a hint
@@ -64,7 +64,7 @@ pub struct InvalidatedEventBody {
 }
 
 //// Arguments for a LoadedSource event.
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct LoadedSourceEventBody {
   /// The reason for the event.
@@ -75,7 +75,7 @@ pub struct LoadedSourceEventBody {
 }
 
 //// Arguments for a Memory event.
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct MemoryEventBody {
   /// Memory reference of a memory range that has been updated.
@@ -87,7 +87,7 @@ pub struct MemoryEventBody {
 }
 
 //// Arguments for a Module event.
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ModuleEventBody {
   /// The reason for the event.
@@ -99,7 +99,7 @@ pub struct ModuleEventBody {
 }
 
 //// Arguments for an Output event.
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct OutputEventBody {
   /// The output category. If not specified or if the category is not
@@ -155,7 +155,7 @@ pub struct OutputEventBody {
 }
 
 //// Arguments for an Process event.
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ProcessEventBody {
   /// The logical name of the process. This is usually the full path to
@@ -180,7 +180,7 @@ pub struct ProcessEventBody {
 }
 
 //// Arguments for a ProgressEnd event.
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ProgressEndEventBody {
   /// The ID that was introduced in the initial `ProgressStartEvent`.
@@ -191,7 +191,7 @@ pub struct ProgressEndEventBody {
 }
 
 //// Arguments for a ProgressStart event.
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ProgressStartEventBody {
   /// An ID that can be used in subsequent `progressUpdate` and `progressEnd`
@@ -222,7 +222,7 @@ pub struct ProgressStartEventBody {
 }
 
 //// Arguments for a ProgressUpdate event.
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ProgressUpdateEventBody {
   /// The ID that was introduced in the initial `progressStart` event.
@@ -236,7 +236,7 @@ pub struct ProgressUpdateEventBody {
 }
 
 //// Arguments for a Stopped event.
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct StoppedEventBody {
   /// The reason for the event.
@@ -275,7 +275,7 @@ pub struct StoppedEventBody {
 }
 
 //// Arguments for a Terminated event.
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct TerminatedEventBody {
   /// A debug adapter may set `restart` to true (or to an arbitrary object) to
@@ -286,7 +286,7 @@ pub struct TerminatedEventBody {
 }
 
 //// Arguments for a Thread event.
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ThreadEventBody {
   /// The reason for the event.
@@ -296,7 +296,7 @@ pub struct ThreadEventBody {
   pub thread_id: i64,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 #[serde(tag = "event", content = "body", rename_all = "camelCase")]
 pub enum Event {
   /// This event indicates that the debug adapter is ready to accept configuration requests (e.g.
