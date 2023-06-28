@@ -1,5 +1,5 @@
-use thiserror::Error;
 use std::fmt::Debug;
+use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum DeserializationError {
@@ -7,12 +7,14 @@ pub enum DeserializationError {
   StringToEnumParseError { enum_name: String, value: String },
   #[error("Error while deserializing")]
   SerdeError(#[from] serde_json::Error),
+  #[error("Error decoding character stream")]
+  DecodingError(std::str::Utf8Error),
 }
 
 #[derive(Debug, Error)]
 pub enum ServerError<AE: Debug> {
   #[error("I/O error")]
-  IoError,
+  IoError(std::io::Error),
 
   #[error("Unknown header: {header}")]
   UnknownHeader { header: String },

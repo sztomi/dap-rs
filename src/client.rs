@@ -63,6 +63,7 @@ impl<W: Write> BasicClient<W> {
     write!(self.stream, "Content-Length: {}\r\n\r\n", resp_json.len())
       .map_err(ClientError::IoError)?;
     write!(self.stream, "{}\r\n", resp_json).map_err(ClientError::IoError)?;
+    self.stream.flush().map_err(ClientError::IoError)?;
     Ok(())
   }
 }

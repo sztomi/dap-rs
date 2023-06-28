@@ -14,8 +14,6 @@ use crate::requests::Request;
 enum ServerState {
   /// Expecting a header
   Header,
-  /// Expecting a separator between header and content, i.e. "\r\n"
-  Sep,
   /// Expecting content
   Content,
   /// Wants to exit
@@ -52,7 +50,7 @@ impl<A: Adapter, C: Client + Context> Server<A, C> {
 
     loop {
       match input.read_line(&mut buffer) {
-        Ok(mut read_size) => {
+        Ok(read_size) => {
           if read_size == 0 {
             break Ok(());
           }
@@ -68,7 +66,7 @@ impl<A: Adapter, C: Client + Context> Server<A, C> {
                     };
                     buffer.clear();
                     buffer.reserve(content_length);
-                    state = ServerState::Sep;
+                    state = ServerState::Content;
                   }
                   other => {
                     return Err(ServerError::UnknownHeader {
@@ -80,20 +78,17 @@ impl<A: Adapter, C: Client + Context> Server<A, C> {
                 return Err(ServerError::HeaderParseError { line: buffer });
               }
             }
-            ServerState::Sep => {
-              if buffer == "\r\n" {
-                state = ServerState::Content;
-                buffer.clear();
-              }
-            }
             ServerState::Content => {
-              while read_size < content_length {
-                read_size += input.read_line(&mut buffer).unwrap();
-              }
-              let request: Request = match serde_json::from_str(&buffer) {
-                Ok(val) => val,
-                Err(e) => return Err(ServerError::ParseError(DeserializationError::SerdeError(e))),
-              };
+              buffer.clear();
+              let mut content = vec![0; content_length];
+              input
+                .read_exact(content.as_mut_slice())
+                .map_err(ServerError::IoError)?;
+
+              let content = std::str::from_utf8(content.as_slice())
+                .map_err(|e| ServerError::ParseError(DeserializationError::DecodingError(e)))?;
+              let request: Request = serde_json::from_str(content)
+                .map_err(|e| ServerError::ParseError(DeserializationError::SerdeError(e)))?;
               match self.adapter.accept(request, &mut self.client) {
                 Ok(response) => match response.body {
                   Some(ResponseBody::Empty) => (),
@@ -118,7 +113,7 @@ impl<A: Adapter, C: Client + Context> Server<A, C> {
             ServerState::Exiting => break Ok(()),
           }
         }
-        Err(_) => return Err(ServerError::IoError),
+        Err(e) => return Err(ServerError::IoError(e)),
       }
     }
   }
