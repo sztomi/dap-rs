@@ -13,7 +13,6 @@ enum MyAdapterError {
   #[error("Missing command")]
   MissingCommandError,
 }
-
 type DynResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 fn main() -> DynResult<()> {
