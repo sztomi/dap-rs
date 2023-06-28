@@ -1,13 +1,9 @@
-
 #[doc(hidden)]
 pub use crate::{
-  adapter::Adapter,
-  client::{Client, BasicClient, Context},
+  events::{self, Event},
   requests::{self, Command, Request},
   responses::{self, Response, ResponseBody},
-  reverse_requests::{ReverseRequest, ReverseCommand},
+  reverse_requests::{ReverseCommand, ReverseRequest},
   server::Server,
-  events::{self, Event},
-  errors::ClientError,
-  types
+  types,
 };

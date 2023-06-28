@@ -1,7 +1,7 @@
 use serde::Serialize;
 
 use crate::{
-  errors::AdapterError,
+  errors::ServerError,
   requests::{Command, Request},
   types::{
     Breakpoint, BreakpointLocation, Capabilities, CompletionItem, DataBreakpointAccessType,
@@ -591,7 +591,7 @@ impl Response {
 
   /// Create an acknowledgement response. This is a shorthand for responding to requests
   /// where the response does not require a body.
-  pub fn make_ack(req: &Request) -> Result<Self, AdapterError> {
+  pub fn make_ack(req: &Request) -> Result<Self, ServerError> {
     match req.command {
       Command::Attach(_) => Ok(Self {
         request_seq: req.seq,
@@ -683,7 +683,7 @@ impl Response {
         message: None,
         body: Some(ResponseBody::TerminateThreads),
       }),
-      _ => Err(AdapterError::ResponseContructError),
+      _ => Err(ServerError::ResponseContructError),
     }
   }
 
