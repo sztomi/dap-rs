@@ -133,3 +133,23 @@ impl<R: Read, W: Write> Server<R, W> {
     self.send(Sendable::ReverseRequest(request))
   }
 }
+
+#[cfg(test)]
+mod tests {
+
+  use std::io::Cursor;
+
+  use super::*;
+  use crate::requests::Command;
+
+  #[test]
+  fn test_server_init_request() {
+    let mut server_in = Cursor::new("Content-Length: 155\r\n\r\n{\"seq\": 152,\"type\": \"request\",\"command\": \"initialize\",\"arguments\": {\"adapterID\": \"0001e357-72c7-4f03-ae8f-c5b54bd8dabf\", \"clientName\": \"Some Cool Editor\"}}".as_bytes().to_vec());
+    let server_out = Vec::new();
+    let mut server = Server::new(BufReader::new(&mut server_in), BufWriter::new(server_out));
+
+    let req = server.poll_request().unwrap().unwrap();
+    assert_eq!(req.seq, 152);
+    assert!(matches!(req.command, Command::Initialize { .. }));
+  }
+}
