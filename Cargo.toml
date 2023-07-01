@@ -1,2 +1,2 @@
 [workspace]
-members = ["dap"]
+members = ["dap", "integration_tests"]
