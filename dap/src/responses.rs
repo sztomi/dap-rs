@@ -95,7 +95,7 @@ pub struct EvaluateResponse {
   pub memory_reference: Option<String>,
 }
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct ExceptionInfoResponse {
   /// ID of the exception that was thrown.
