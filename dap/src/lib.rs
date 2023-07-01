@@ -1,4 +1,4 @@
-#![doc = include_str!("../README.md")]
+#![doc = include_str!("../../README.md")]
 pub mod base_message;
 pub mod errors;
 pub mod events;
