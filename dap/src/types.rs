@@ -377,6 +377,12 @@ pub enum ExceptionBreakMode {
   UserUnhandled,
 }
 
+impl Default for ExceptionBreakMode {
+  fn default() -> Self {
+    ExceptionBreakMode::Never
+  }
+}
+
 impl FromStr for ExceptionBreakMode {
   type Err = DeserializationError;
 
