@@ -683,7 +683,7 @@ impl Response {
         message: None,
         body: Some(ResponseBody::TerminateThreads),
       }),
-      _ => Err(ServerError::ResponseContructError),
+      _ => Err(ServerError::ResponseConstructError),
     }
   }
 

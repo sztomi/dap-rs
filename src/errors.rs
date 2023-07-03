@@ -31,6 +31,6 @@ pub enum ServerError {
   #[error("Serialization error")]
   SerializationError(#[from] serde_json::Error),
 
-  #[error("Could not construct response")]
-  ResponseContructError,
+  #[error("Trying to construct a non-sense response (such as an ACK for a request that requires a response body")]
+  ResponseConstructError,
 }
