@@ -74,9 +74,9 @@ fn main() -> DynResult<()> {
 
     // When you call respond, send_event etc. the message will be wrapped
     // in a base message with a appropriate seq number, so you don't have to keep track of that yourself
-    server.respond(rsp).unwrap();
+    server.respond(rsp)?;
 
-    server.send_event(Event::Initialized).unwrap();
+    server.send_event(Event::Initialized)?;
   } else {
     return Err(Box::new(MyAdapterError::UnhandledCommandError));
   }
