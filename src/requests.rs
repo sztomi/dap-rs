@@ -4,7 +4,7 @@ use serde::{de, Deserialize, Deserializer};
 use serde_json::Value;
 
 use crate::{
-  errors::AdapterError,
+  errors::ServerError,
   fromstr_deser,
   prelude::{Response, ResponseBody},
   responses::ResponseMessage,
@@ -1006,7 +1006,7 @@ impl Request {
 
   /// Create an acknowledgement response. This is a shorthand for responding to requests
   /// where the response does not require a body.
-  pub fn ack(self) -> Result<Response, AdapterError> {
+  pub fn ack(self) -> Result<Response, ServerError> {
     match self.command {
       Command::Attach(_) => Ok(Response {
         request_seq: self.seq,
@@ -1098,7 +1098,7 @@ impl Request {
         message: None,
         body: Some(ResponseBody::TerminateThreads),
       }),
-      _ => Err(AdapterError::ResponseContructError),
+      _ => Err(ServerError::ResponseConstructError),
     }
   }
 }
