@@ -967,7 +967,7 @@ impl Request {
   /// Create a successful response for a given request. The sequence number will be copied
   /// from `request`, `message` will be `None` (as its neither cancelled nor an error).
   /// The `body` argument contains the response itself.
-  pub fn make_success(self, body: ResponseBody) -> Response {
+  pub fn success(self, body: ResponseBody) -> Response {
     Response {
       request_seq: self.seq,
       success: true,
@@ -983,7 +983,7 @@ impl Request {
   ///
   ///   * `req`: The request this response corresponds to.
   ///   * `body`: The body of the response to attach.
-  pub fn make_error(self, error: &str) -> Response {
+  pub fn error(self, error: &str) -> Response {
     Response {
       request_seq: self.seq,
       success: false,
@@ -995,7 +995,7 @@ impl Request {
   /// Create a cancellation response for the given request. The sequence number will be copied
   /// from the request, message will be [`ResponseMessage::Cancelled`], `success` will be false,
   /// and `body` will be `None`.
-  pub fn make_cancel(self) -> Response {
+  pub fn cancellation(self) -> Response {
     Response {
       request_seq: self.seq,
       success: false,
@@ -1006,7 +1006,7 @@ impl Request {
 
   /// Create an acknowledgement response. This is a shorthand for responding to requests
   /// where the response does not require a body.
-  pub fn make_ack(self) -> Result<Response, AdapterError> {
+  pub fn ack(self) -> Result<Response, AdapterError> {
     match self.command {
       Command::Attach(_) => Ok(Response {
         request_seq: self.seq,

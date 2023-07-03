@@ -26,12 +26,9 @@ fn main() -> DynResult<()> {
     None => return Err(Box::new(MyAdapterError::MissingCommandError)),
   };
   if let Command::Initialize(_) = req.command {
-    let rsp = Response::make_success(
-      &req,
-      ResponseBody::Initialize(Some(types::Capabilities {
-        ..Default::default()
-      })),
-    );
+    let rsp = req.success(ResponseBody::Initialize(Some(types::Capabilities {
+      ..Default::default()
+    })));
 
     // When you call respond, send_event etc. the message will be wrapped
     // in a base message with a appropriate seq number, so you don't have to keep track of that yourself
