@@ -1,7 +1,7 @@
 use serde::Serialize;
 
 use crate::{
-  errors::AdapterError,
+  errors::ServerError,
   requests::{Command, Request},
   types::{
     Breakpoint, BreakpointLocation, Capabilities, CompletionItem, DataBreakpointAccessType,
@@ -348,14 +348,6 @@ pub enum ResponseBody {
   ///
   /// Specification: [Disconnect request](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Disconnect)
   Disconnect,
-  /// This is a special response that indicates no response being sent to the client.
-  ///
-  /// Note that this response variant is not part of the DAP specification, it only exists for
-  /// the purposes of this crate.
-  ///
-  /// Normally, the adapter should send a response to all requests, so only use this in
-  /// exceptional cases.
-  Empty,
   /// Response to `evaluate` request.
   ///
   /// Specification: [Evaluate request](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Evaluate)
@@ -591,7 +583,7 @@ impl Response {
 
   /// Create an acknowledgement response. This is a shorthand for responding to requests
   /// where the response does not require a body.
-  pub fn make_ack(req: &Request) -> Result<Self, AdapterError> {
+  pub fn make_ack(req: &Request) -> Result<Self, ServerError> {
     match req.command {
       Command::Attach(_) => Ok(Self {
         request_seq: req.seq,
@@ -683,16 +675,7 @@ impl Response {
         message: None,
         body: Some(ResponseBody::TerminateThreads),
       }),
-      _ => Err(AdapterError::ResponseContructError),
-    }
-  }
-
-  pub fn empty() -> Self {
-    Self {
-      request_seq: 0,
-      success: false,
-      message: None,
-      body: Some(ResponseBody::Empty),
+      _ => Err(ServerError::ResponseConstructError),
     }
   }
 }
