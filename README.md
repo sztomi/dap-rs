@@ -65,8 +65,7 @@ fn main() -> DynResult<()> {
     None => return Err(Box::new(MyAdapterError::MissingCommandError)),
   };
   if let Command::Initialize(_) = req.command {
-    let rsp = Response::make_success(
-      &req,
+    let rsp = req.success(
       ResponseBody::Initialize(Some(types::Capabilities {
         ..Default::default()
       })),
