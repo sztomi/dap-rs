@@ -37,6 +37,7 @@ pub struct ContinueResponse {
 }
 
 #[derive(Serialize, Debug, Default, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct DataBreakpointInfoResponse {
   /// An identifier for the data on which a data breakpoint can be registered
   /// with the `setDataBreakpoints` request or null if no data breakpoint is
@@ -47,9 +48,11 @@ pub struct DataBreakpointInfoResponse {
   pub description: String,
   /// Attribute lists the available access types for a potential data
   /// breakpoint. A UI client could surface this information.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub access_types: Option<Vec<DataBreakpointAccessType>>,
   /// Attribute indicates that a potential data breakpoint could be persisted
   /// across sessions.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub can_persist: Option<bool>,
 }
 
