@@ -529,6 +529,7 @@ pub struct Response {
   /// Values:
   /// 'cancelled': request was cancelled.
   /// etc.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub message: Option<ResponseMessage>,
   /// Contains request result if success is true and error details if success is
   /// false.
