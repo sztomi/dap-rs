@@ -251,25 +251,29 @@ pub struct SetExpressionResponse {
   /// The type of the value.
   /// This attribute should only be returned by a debug adapter if the
   /// corresponding capability `supportsVariableType` is true.
-  #[serde(rename = "type")]
+  #[serde(rename = "type", skip_serializing_if = "Option::is_none")]
   pub type_field: Option<String>,
   /// Properties of a value that can be used to determine how to render the
   /// result in the UI.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub presentation_hint: Option<VariablePresentationHint>,
   /// If `variablesReference` is > 0, the value is structured and its children
   /// can be retrieved by passing `variablesReference` to the `variables`
   /// request.
   /// The value should be less than or equal to 2147483647 (2^31-1).
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub variables_reference: Option<i64>,
   /// The i64 of named child variables.
   /// The client can use this information to present the variables in a paged
   /// UI and fetch them in chunks.
   /// The value should be less than or equal to 2147483647 (2^31-1).
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub named_variables: Option<i64>,
   /// The i64 of indexed child variables.
   /// The client can use this information to present the variables in a paged
   /// UI and fetch them in chunks.
   /// The value should be less than or equal to 2147483647 (2^31-1).
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub indexed_variables: Option<i64>,
 }
 
