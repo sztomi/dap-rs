@@ -4,6 +4,7 @@ mod integration_tests {
   use serde_json::Value;
   use dap::prelude::*;
   use dap::responses::*;
+  use dap::types::*;
   use jsonschema::JSONSchema;
 
   pub fn resp_to_value(resp: &Response) -> serde_json::Value {
