@@ -375,8 +375,13 @@ pub enum ResponseBody {
   GotoTargets(GotoTargetsResponse),
   /// Response to `initialize` request.
   ///
+  /// NOTE: we are straying away from the spec here, as the spec says that the response body is
+  /// optional, but we are always returning a body because I could not find a way to express
+  /// skipping the optional body with serde (and serializing null will make the schema validation
+  /// complain).
+  ///
   /// Specification: [Initialize request](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Initialize)
-  Initialize(Option<Capabilities>),
+  Initialize(Capabilities),
   /// Response to launch request. This is just an acknowledgement, so no body field is required.
   ///
   /// Specification: [Launch request](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Launch)
@@ -398,6 +403,7 @@ pub enum ResponseBody {
   /// Specification: [Pause request](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Pause)
   Pause,
   /// Response to readMemory request.
+  ///
   /// NOTE: we are straying away from the spec here, as the spec says that the response body is
   /// optional, but we are always returning a body because I could not find a way to express
   /// skipping the optional body with serde (and serializing null will make the schema validation
