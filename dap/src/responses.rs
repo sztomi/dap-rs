@@ -211,22 +211,25 @@ pub struct SetVariableResponse {
   pub value: String,
   /// The type of the new value. Typically shown in the UI when hovering over
   /// the value.
-  #[serde(rename = "type")]
+  #[serde(rename = "type", skip_serializing_if = "Option::is_none")]
   pub type_field: Option<String>,
   /// If `variablesReference` is > 0, the new value is structured and its
   /// children can be retrieved by passing `variablesReference` to the
   /// `variables` request.
   /// The value should be less than or equal to 2147483647 (2^31-1).
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub variables_reference: Option<i64>,
   /// The i64 of named child variables.
   /// The client can use this information to present the variables in a paged
   /// UI and fetch them in chunks.
   /// The value should be less than or equal to 2147483647 (2^31-1).
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub named_variables: Option<i64>,
   /// The i64 of indexed child variables.
   /// The client can use this information to present the variables in a paged
   /// UI and fetch them in chunks.
   /// The value should be less than or equal to 2147483647 (2^31-1).
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub indexed_variables: Option<i64>,
 }
 
