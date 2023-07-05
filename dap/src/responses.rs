@@ -145,8 +145,10 @@ pub struct ReadMemoryResponse {
   /// read byte.
   /// This can be used to determine the i64 of bytes that should be skipped
   /// before a subsequent `readMemory` request succeeds.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub unreadable_bytes: Option<i64>,
   /// The bytes read from memory, encoded using base64.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub data: Option<String>,
 }
 
@@ -396,9 +398,13 @@ pub enum ResponseBody {
   /// Specification: [Pause request](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Pause)
   Pause,
   /// Response to readMemory request.
+  /// NOTE: we are straying away from the spec here, as the spec says that the response body is
+  /// optional, but we are always returning a body because I could not find a way to express
+  /// skipping the optional body with serde (and serializing null will make the schema validation
+  /// complain).
   ///
   /// Specification: [ReadMemory request](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_ReadMemory)
-  ReadMemory(Option<ReadMemoryResponse>),
+  ReadMemory(ReadMemoryResponse),
   /// Response to `restart` request. This is just an acknowledgement, so no body field is required.
   ///
   /// Specification: [Restart request](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Restart)
