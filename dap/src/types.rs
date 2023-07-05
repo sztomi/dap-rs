@@ -106,102 +106,141 @@ fromstr_deser! {ChecksumAlgorithm}
 #[serde(rename_all = "camelCase")]
 pub struct Capabilities {
   /// The debug adapter supports the `configurationDone` request.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_configuration_done_request: Option<bool>,
   /// The debug adapter supports function breakpoints.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_function_breakpoints: Option<bool>,
   /// The debug adapter supports conditional breakpoints.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_conditional_breakpoints: Option<bool>,
   /// The debug adapter supports breakpoints that break execution after a
   /// specified number of hits.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_hit_conditional_breakpoints: Option<bool>,
   /// The debug adapter supports a (side effect free) `evaluate` request for data
   /// hovers.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_evaluate_for_hovers: Option<bool>,
   /// Available exception filter options for the `setExceptionBreakpoints`
   /// request.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub exception_breakpoint_filters: Option<Vec<ExceptionBreakpointsFilter>>,
   /// The debug adapter supports stepping back via the `stepBack` and
   /// `reverseContinue` requests.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_step_back: Option<bool>,
   /// The debug adapter supports setting a variable to a value.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_set_variable: Option<bool>,
   /// The debug adapter supports restarting a frame.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_restart_frame: Option<bool>,
   /// The debug adapter supports the `gotoTargets` request.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_goto_targets_request: Option<bool>,
   /// The debug adapter supports the `stepInTargets` request.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_step_in_targets_request: Option<bool>,
   /// The debug adapter supports the `completions` request.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_completions_request: Option<bool>,
   /// The set of characters that should trigger completion in a REPL. If not
   /// specified, the UI should assume the `.` character.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub completion_trigger_characters: Option<Vec<String>>,
   /// The debug adapter supports the `modules` request.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_modules_request: Option<bool>,
   /// The set of additional module information exposed by the debug adapter.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub additional_module_columns: Option<Vec<ColumnDescriptor>>,
   /// Checksum algorithms supported by the debug adapter.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supported_checksum_algorithms: Option<Vec<ChecksumAlgorithm>>,
   /// The debug adapter supports the `restart` request. In this case a client
   /// should not implement `restart` by terminating and relaunching the adapter
   /// but by calling the `restart` request.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_restart_request: Option<bool>,
   /// The debug adapter supports `exceptionOptions` on the
   /// `setExceptionBreakpoints` request.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_exception_options: Option<bool>,
   /// The debug adapter supports a `format` attribute on the `stackTrace`,
   /// `variables`, and `evaluate` requests.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_value_formatting_options: Option<bool>,
   /// The debug adapter supports the `exceptionInfo` request.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_exception_info_request: Option<bool>,
   /// The debug adapter supports the `terminateDebuggee` attribute on the
   /// `disconnect` request.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub support_terminate_debuggee: Option<bool>,
   /// The debug adapter supports the `suspendDebuggee` attribute on the
   /// `disconnect` request.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub support_suspend_debuggee: Option<bool>,
   /// The debug adapter supports the delayed loading of parts of the stack, which
   /// requires that both the `startFrame` and `levels` arguments and the
   /// `totalFrames` result of the `stackTrace` request are supported.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_delayed_stack_trace_loading: Option<bool>,
   /// The debug adapter supports the `loadedSources` request.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_loaded_sources_request: Option<bool>,
   /// The debug adapter supports log points by interpreting the `logMessage`
   /// attribute of the `SourceBreakpoint`.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_log_points: Option<bool>,
   /// The debug adapter supports the `terminateThreads` request.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_terminate_threads_request: Option<bool>,
   /// The debug adapter supports the `setExpression` request.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_set_expression: Option<bool>,
   /// The debug adapter supports the `terminate` request.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_terminate_request: Option<bool>,
   /// The debug adapter supports data breakpoints.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_data_breakpoints: Option<bool>,
   /// The debug adapter supports the `readMemory` request.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_read_memory_request: Option<bool>,
   /// The debug adapter supports the `writeMemory` request.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_write_memory_request: Option<bool>,
   /// The debug adapter supports the `disassemble` request.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_disassemble_request: Option<bool>,
   /// The debug adapter supports the `cancel` request.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_cancel_request: Option<bool>,
   /// The debug adapter supports the `breakpointLocations` request.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_breakpoint_locations_request: Option<bool>,
   /// The debug adapter supports the `clipboard` context value in the `evaluate`
   /// request.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_clipboard_context: Option<bool>,
   /// The debug adapter supports stepping granularities (argument `granularity`)
   /// for the stepping requests.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_stepping_granularity: Option<bool>,
   /// The debug adapter supports adding breakpoints based on instruction
   /// references.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_instruction_breakpoints: Option<bool>,
   /// The debug adapter supports `filterOptions` as an argument on the
   /// `setExceptionBreakpoints` request.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_exception_filter_options: Option<bool>,
   /// The debug adapter supports the `singleThread` property on the execution
   /// requests (`continue`, `next`, `stepIn`, `stepOut`, `reverseContinue`,
   /// `stepBack`).
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_single_thread_execution_requests: Option<bool>,
 }
 
