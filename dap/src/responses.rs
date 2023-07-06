@@ -300,6 +300,7 @@ pub struct StackTraceResponse {
   /// (which indicates the end of the stack). Returning monotonically
   /// increasing `totalFrames` values for subsequent requests can be used to
   /// enforce paging in the client.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub total_frames: Option<i64>,
 }
 
