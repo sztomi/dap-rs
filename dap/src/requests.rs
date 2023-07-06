@@ -237,7 +237,7 @@ pub struct DataBreakpointInfoArguments {
   pub name: String,
 }
 
-//// Arguments for a Disassamble request.
+//// Arguments for a Disassemble request.
 #[derive(Deserialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 pub struct DisassembleArguments {
@@ -662,8 +662,8 @@ pub enum Command {
   /// Clients should only call this request if the corresponding capability
   /// `supportsDisassembleRequest` is true.
   ///
-  /// Specification: [Disassamble request](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Disassemble)
-  Disassamble(DisassembleArguments),
+  /// Specification: [Disassemble request](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Disassemble)
+  Disassemble(DisassembleArguments),
   /// The `disconnect` request asks the debug adapter to disconnect from the debuggee (thus ending
   /// the debug session) and then to shut down itself (the debug adapter).
   /// In addition, the debug adapter must terminate the debuggee if it was started with the `launch`
