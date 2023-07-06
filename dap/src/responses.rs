@@ -194,6 +194,7 @@ pub struct SetExceptionBreakpointsResponse {
   /// If both `filters` and `filterOptions` are given, the returned array must
   /// start with `filters` information first, followed by `filterOptions`
   /// information.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub breakpoints: Option<Vec<Breakpoint>>,
 }
 
@@ -474,7 +475,12 @@ pub enum ResponseBody {
   /// For backward compatibility both the `breakpoints` array and the enclosing body are optional.
   /// If these elements are missing a client is not able to show problems for individual exception
   /// breakpoints or filters.
-  SetExceptionBreakpoints(Option<SetExceptionBreakpointsResponse>),
+  ///
+  /// NOTE: we are straying away from the spec here, as the spec says that the response body is
+  /// optional, but we are always returning a body because I could not find a way to express
+  /// skipping the optional body with serde (and serializing null will make the schema validation
+  /// complain).
+  SetExceptionBreakpoints(SetExceptionBreakpointsResponse),
   /// Response to setExpression request.
   ///
   /// Specification: [SetExpression request](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_SetExpression)
