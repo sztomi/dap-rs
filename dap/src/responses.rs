@@ -356,8 +356,13 @@ pub enum ResponseBody {
   DataBreakpointInfo(DataBreakpointInfoResponse),
   /// Response to `disassemble` request.
   ///
+  /// NOTE: we are straying away from the spec here, as the spec says that the response body is
+  /// optional, but we are always returning a body because I could not find a way to express
+  /// skipping the optional body with serde (and serializing null will make the schema validation
+  /// complain).
+  ///
   /// Specification: [Disassembly request](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Disassemble)
-  Disassamble(Option<DisassembleResponse>),
+  Disassemble(DisassembleResponse),
   /// Response to disconnect request. This is just an acknowledgement, so no body field is required.
   ///
   /// Specification: [Disconnect request](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Disconnect)
