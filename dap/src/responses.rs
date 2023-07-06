@@ -108,10 +108,12 @@ pub struct ExceptionInfoResponse {
   /// ID of the exception that was thrown.
   pub exception_id: String,
   /// Descriptive text for the exception.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub description: Option<String>,
   /// Mode that caused the exception notification to be raised.
   pub break_mode: ExceptionBreakMode,
   /// Detailed information about the exception.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub details: Option<ExceptionDetails>,
 }
 
