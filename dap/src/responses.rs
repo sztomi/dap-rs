@@ -131,6 +131,7 @@ pub struct ModulesResponse {
   /// All modules or range of modules.
   pub modules: Vec<Module>,
   /// The total i64 of modules available.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub total_modules: Option<i64>,
 }
 
