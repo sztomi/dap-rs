@@ -324,9 +324,11 @@ pub struct WriteMemoryResponse {
   /// Property that should be returned when `allowPartial` is true to indicate
   /// the offset of the first byte of data successfully written. Can be
   /// negative.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub offset: Option<i64>,
   /// Property that should be returned when `allowPartial` is true to indicate
   /// the i64 of bytes starting from address that were successfully written.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub bytes_written: Option<i64>,
 }
 
@@ -537,9 +539,14 @@ pub enum ResponseBody {
   /// Specification: [Variables request](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Variables)
   Variables(VariablesResponse),
   /// Response to `writeMemory` request.
+  /// 
+  /// NOTE: we are straying away from the spec here, as the spec says that the response body is
+  /// optional, but we are always returning a body because I could not find a way to express
+  /// skipping the optional body with serde (and serializing null will make the schema validation
+  /// complain).
   ///
   /// Specification: [WriteMemory request](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_WriteMemory)
-  WriteMemory(Option<WriteMemoryResponse>),
+  WriteMemory(WriteMemoryResponse),
 }
 
 /// Represents response to the client.
