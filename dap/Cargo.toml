@@ -8,7 +8,7 @@ description = "A Rust implementation of the Debug Adapter Protocol"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/sztomi/dap-rs"
 homepage = "https://github.com/sztomi/dap-rs"
-readme = "README.md"
+readme = "../README.md"
 keywords = ["debugging", "protocol", "debug", "framework"]
 categories = ["development-tools::debugging"]
 
