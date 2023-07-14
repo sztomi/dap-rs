@@ -1,6 +1,6 @@
-use serde::Serialize;
 #[cfg(feature = "integration_testing")]
 use fake::Dummy;
+use serde::Serialize;
 
 use crate::types::{
   Breakpoint, BreakpointLocation, Capabilities, CompletionItem, DataBreakpointAccessType,
@@ -567,7 +567,7 @@ pub enum ResponseBody {
   /// Specification: [Variables request](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Variables)
   Variables(VariablesResponse),
   /// Response to `writeMemory` request.
-  /// 
+  ///
   /// NOTE: we are straying away from the spec here, as the spec says that the response body is
   /// optional, but we are always returning a body because I could not find a way to express
   /// skipping the optional body with serde (and serializing null will make the schema validation

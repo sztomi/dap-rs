@@ -258,7 +258,6 @@ pub struct Capabilities {
   pub supports_single_thread_execution_requests: Option<bool>,
 }
 
-
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct CustomValue(Value);
 
