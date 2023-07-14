@@ -1,7 +1,7 @@
 use quote::{format_ident, quote};
 use rustfmt_wrapper::rustfmt;
 use std::{
-  collections::HashMap,
+  collections::{HashMap, HashSet},
   env,
   fs::File,
   io::Write,
@@ -27,12 +27,24 @@ fn main() -> DynResult<()> {
   let ast = parse_file(&dap_src.join("responses.rs"))?;
   let resp_to_body_ty = HashMap::from([("Initialize".to_string(), "Capabilities")]);
 
+  // These responses are skipped because the schema for Source (which they contain) is
+  // self-referential and we can't load that the way we're doing it now (by manually dereferencing
+  // the $ref's in the schema).
+  // This is something that jsonschema should explicitly develop support for.
+  let skipped_responses: HashSet<_> = ["LoadedSources", "Scopes"]
+    .iter()
+    .map(|s| s.to_string())
+    .collect();
+
   for item in ast.items {
     if let syn::Item::Enum(e) = item {
       if e.ident != "ResponseBody" {
         continue;
       }
       for variant in e.variants {
+        if skipped_responses.contains(&variant.ident.to_string()) {
+          continue;
+        }
         let test_name = format_ident!(
           "validate_{}_response",
           variant.ident.to_string().to_lowercase()
@@ -98,9 +110,9 @@ fn main() -> DynResult<()> {
           for field in fields.unnamed {
             if let syn::Type::Path(_) = field.ty {
               init_part = quote! { (body) };
-              create_body = quote! { 
+              create_body = quote! {
                 let rng = &mut StdRng::from_seed(RNG_SEED);
-                let body: #resp_ty = Faker.fake_with_rng(rng); 
+                let body: #resp_ty = Faker.fake_with_rng(rng);
               };
               break;
             }
