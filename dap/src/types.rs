@@ -44,7 +44,7 @@ pub struct ExceptionBreakpointsFilter {
 pub enum ColumnDescriptorType {
   String,
   Number,
-  Bool,
+  Boolean,
   UnixTimestampUTC,
 }
 
@@ -55,7 +55,7 @@ impl FromStr for ColumnDescriptorType {
     match s {
       "string" => Ok(ColumnDescriptorType::String),
       "number" => Ok(ColumnDescriptorType::Number),
-      "bool" => Ok(ColumnDescriptorType::Bool),
+      "boolean" => Ok(ColumnDescriptorType::Boolean),
       "unixTimestampUTC" => Ok(ColumnDescriptorType::UnixTimestampUTC),
       other => Err(DeserializationError::StringToEnumParseError {
         enum_name: "ColumnDescriptorType".to_string(),
@@ -68,7 +68,7 @@ impl FromStr for ColumnDescriptorType {
 fromstr_deser! { ColumnDescriptorType }
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct ColumnDescriptor {
   /// Name of the attribute rendered in this column.
@@ -168,8 +168,7 @@ pub struct Capabilities {
   #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_modules_request: Option<bool>,
   /// The set of additional module information exposed by the debug adapter.
-  #[serde(skip_serializing_if = "Option::is_none")]
-  pub additional_module_columns: Option<Vec<ColumnDescriptor>>,
+  pub additional_module_columns: Vec<ColumnDescriptor>,
   /// Checksum algorithms supported by the debug adapter.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub supported_checksum_algorithms: Option<Vec<ChecksumAlgorithm>>,
