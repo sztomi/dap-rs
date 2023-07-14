@@ -1,11 +1,12 @@
+use quote::{format_ident, quote};
+use rustfmt_wrapper::rustfmt;
 use std::{
+  collections::HashMap,
   env,
   fs::File,
   io::Write,
   path::{Path, PathBuf},
 };
-use quote::{format_ident, quote};
-use rustfmt_wrapper::rustfmt;
 
 type DynResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -24,6 +25,7 @@ fn main() -> DynResult<()> {
   let dap_src = manifest_path.parent().unwrap().join("dap").join("src");
 
   let ast = parse_file(&dap_src.join("responses.rs"))?;
+  let resp_to_body_ty = HashMap::from([("Initialize".to_string(), "Capabilities")]);
 
   for item in ast.items {
     if let syn::Item::Enum(e) = item {
@@ -37,7 +39,7 @@ fn main() -> DynResult<()> {
         );
 
         let mut init_part = quote! {};
-        if let syn::Fields::Unnamed(fields) = variant.fields {
+        if let syn::Fields::Unnamed(fields) = variant.fields.clone() {
           for field in fields.unnamed {
             if let syn::Type::Path(ty) = field.ty {
               let fieldname = &ty.path.segments[0].ident;
@@ -58,6 +60,62 @@ fn main() -> DynResult<()> {
               .with_document("/".to_string(), schema.clone())
               .compile(&schema)
               .unwrap();
+            let resp = Response {
+              request_seq: 1,
+              success: true,
+              message: None,
+              body: Some(ResponseBody::#ident #init_part),
+            };
+            let instance = resp_to_value(&resp);
+            let result = compiled.validate(&instance);
+            if let Err(errors) = result {
+              for error in errors {
+                eprintln!("Validation error: {}", error);
+                eprintln!("Instance path: {}", error.instance_path);
+              }
+            }
+            assert!(compiled.is_valid(&instance));
+          }
+        };
+        writeln!(f, "{}", rustfmt(test_fn).unwrap())?;
+
+        let test_name = format_ident!(
+          "validate_fake_{}_response",
+          variant.ident.to_string().to_lowercase()
+        );
+        let resp_ty = if resp_to_body_ty.contains_key(&variant.ident.to_string()) {
+          format_ident!(
+            "{}",
+            resp_to_body_ty.get(&variant.ident.to_string()).unwrap()
+          )
+        } else {
+          format_ident!("{}Response", variant.ident)
+        };
+
+        let mut init_part = quote! {};
+        let mut create_body = quote! {};
+        if let syn::Fields::Unnamed(fields) = variant.fields {
+          for field in fields.unnamed {
+            if let syn::Type::Path(_) = field.ty {
+              init_part = quote! { (body) };
+              create_body = quote! { 
+                let rng = &mut StdRng::from_seed(RNG_SEED);
+                let body: #resp_ty = Faker.fake_with_rng(rng); 
+              };
+              break;
+            }
+          }
+        }
+
+        let test_fn = quote! {
+          #[test]
+          fn #test_name() {
+            let schema = get_schema(#schema_ident);
+            let compiled = JSONSchema::options()
+              .with_document("/".to_string(), schema.clone())
+              .compile(&schema)
+              .unwrap();
+            #create_body
             let resp = Response {
               request_seq: 1,
               success: true,

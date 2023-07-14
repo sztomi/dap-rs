@@ -1,11 +1,20 @@
 #[cfg(test)]
 mod integration_tests {
   use std::collections::HashSet;
+
+  use fake::{Fake, Faker};
+  use jsonschema::JSONSchema;
+  use rand::{rngs::StdRng, SeedableRng};
   use serde_json::Value;
+
   use dap::prelude::*;
   use dap::responses::*;
   use dap::types::*;
-  use jsonschema::JSONSchema;
+
+  const RNG_SEED: [u8; 32] = [
+    76, 105, 102, 101, 32, 114, 101, 115, 105, 100, 101, 115, 32, 105, 110, 32, 116, 104, 101, 32,
+    104, 117, 109, 97, 110, 32, 104, 101, 97, 114, 116, 32,
+  ];
 
   pub fn resp_to_value(resp: &Response) -> serde_json::Value {
     let msg = dap::base_message::BaseMessage {
@@ -20,7 +29,7 @@ mod integration_tests {
   // automatically, and I can't find a way to make it do so.
   //
   // For example, consider resolving `Request`:
-  // 
+  //
   //    "ProtocolMessage": {
   //    	"type": "object",
   //    	"title": "Base Protocol",
@@ -122,7 +131,11 @@ mod integration_tests {
   //          }
   //       ]
   //    }
-  pub fn resolve_refs(schema_part: Value, full_schema: &Value, resolved_refs: &mut HashSet<String>) -> Value {
+  pub fn resolve_refs(
+    schema_part: Value,
+    full_schema: &Value,
+    resolved_refs: &mut HashSet<String>,
+  ) -> Value {
     match schema_part {
       Value::Object(map) => {
         let mut resolved = serde_json::Map::new();
@@ -141,7 +154,10 @@ mod integration_tests {
               }
               if let Value::Object(ref_schema_map) = ref_schema {
                 for (k, v) in ref_schema_map {
-                  resolved.insert(k.clone(), resolve_refs(v.clone(), full_schema, resolved_refs));
+                  resolved.insert(
+                    k.clone(),
+                    resolve_refs(v.clone(), full_schema, resolved_refs),
+                  );
                 }
               }
             }
@@ -162,7 +178,8 @@ mod integration_tests {
   }
 
   pub fn get_schema(item: &str) -> Value {
-    let schema = include_str!("../b01a8da52b83850c1a35e024bca09f7b285ac109_debugAdapterProtocol.json");
+    let schema =
+      include_str!("../b01a8da52b83850c1a35e024bca09f7b285ac109_debugAdapterProtocol.json");
     let schema: Value = serde_json::from_str(schema).unwrap();
     let mut refs = HashSet::new();
 
