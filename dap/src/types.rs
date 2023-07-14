@@ -2002,7 +2002,7 @@ pub struct Thread {
 /// The client can use this information to present the children in a paged UI and fetch them in
 /// chunks.
 #[derive(Serialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct Variable {
   /// The variable's name.
