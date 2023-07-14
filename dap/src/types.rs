@@ -4,10 +4,16 @@ use std::str::FromStr;
 use serde::{de, Deserialize, Deserializer, Serialize};
 use serde_json::Value;
 
+#[cfg(feature = "integration_testing")]
+use fake::{Dummy, Fake, Faker};
+#[cfg(feature = "integration_testing")]
+use rand::Rng;
+
 use crate::errors::DeserializationError;
 use crate::{fromstr_deser, tostr_ser};
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct ExceptionBreakpointsFilter {
   /// The internal ID of the filter option. This value is passed to the
   /// `setExceptionBreakpoints` request.
@@ -30,6 +36,7 @@ pub struct ExceptionBreakpointsFilter {
 
 #[derive(Serialize, Debug, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum ColumnDescriptorType {
   String,
   Number,
@@ -58,6 +65,7 @@ fromstr_deser! { ColumnDescriptorType }
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct ColumnDescriptor {
   /// Name of the attribute rendered in this column.
   pub attribute_name: String,
@@ -75,6 +83,7 @@ pub struct ColumnDescriptor {
 }
 
 #[derive(Serialize, Debug, Clone)]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum ChecksumAlgorithm {
   MD5,
   SHA1,
@@ -104,6 +113,7 @@ fromstr_deser! {ChecksumAlgorithm}
 
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct Capabilities {
   /// The debug adapter supports the `configurationDone` request.
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -244,6 +254,23 @@ pub struct Capabilities {
   pub supports_single_thread_execution_requests: Option<bool>,
 }
 
+
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
+pub struct CustomValue(Value);
+
+struct ValueFaker;
+
+impl Dummy<ValueFaker> for CustomValue {
+  fn dummy_with_rng<R: Rng + ?Sized>(_: &ValueFaker, rng: &mut R) -> Self {
+    CustomValue(match rng.gen_range(0..=5) {
+      1 => Value::Bool(rng.gen()),
+      2 => Value::Number(serde_json::Number::from_f64(rng.gen()).unwrap()),
+      3 => Value::String(Faker.fake::<String>()),
+      _ => Value::Null,
+    })
+  }
+}
+
 /// A Source is a descriptor for source code.
 ///
 /// It is returned from the debug adapter as part of a StackFrame and it is used by clients when
@@ -251,6 +278,7 @@ pub struct Capabilities {
 ///
 /// Specification: [Source](https://microsoft.github.io/debug-adapter-protocol/specification#Types_Source)
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct Source {
   /// The short name of the source. Every source returned from the debug adapter
   /// has a name.
@@ -279,12 +307,14 @@ pub struct Source {
   /// Additional data that a debug adapter might want to loop through the client.
   /// The client should leave the data intact and persist it across sessions. The
   /// client should not interpret the data.
-  pub adapter_data: Option<Value>,
+  #[dummy(faker = "ValueFaker")]
+  pub adapter_data: Option<CustomValue>,
   /// The checksums associated with this file.
   pub checksums: Option<Vec<Checksum>>,
 }
 
 #[derive(Deserialize, Debug, Default, Clone)]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct SourceBreakpoint {
   /// The source line of the breakpoint or logpoint.
   pub line: i64,
@@ -312,6 +342,7 @@ pub struct SourceBreakpoint {
 /// Information about a breakpoint created in setBreakpoints, setFunctionBreakpoints,
 /// setInstructionBreakpoints, or setDataBreakpoints requests.
 #[derive(Serialize, Debug, Default, Clone)]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct Breakpoint {
   /// The identifier for the breakpoint. It is needed if breakpoint events are
   /// used to update or remove breakpoints.
@@ -347,6 +378,7 @@ pub struct Breakpoint {
 }
 
 #[derive(Serialize, Debug, Clone)]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum PresentationHint {
   #[serde(rename = "normal")]
   Normal,
@@ -375,6 +407,7 @@ impl FromStr for PresentationHint {
 fromstr_deser! {PresentationHint}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct Checksum {
   /// The algorithm used to calculate this checksum.
   pub algorithm: ChecksumAlgorithm,
@@ -386,6 +419,7 @@ pub struct Checksum {
 /// the setExceptionBreakpoints request.
 #[derive(Deserialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct ExceptionFilterOptions {
   /// ID of an exception filter returned by the `exceptionBreakpointFilters`
   /// capability.
@@ -401,6 +435,7 @@ pub struct ExceptionFilterOptions {
 ///
 /// Specification: [`ExceptionBreakMode`](https://microsoft.github.io/debug-adapter-protocol/specification#Types_ExceptionBreakMode)
 #[derive(Serialize, Debug, Clone)]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum ExceptionBreakMode {
   /// never breaks
   #[serde(rename = "never")]
@@ -449,6 +484,7 @@ fromstr_deser! { ExceptionBreakMode }
 /// Specification: [`ExceptionPathSegment`](https://microsoft.github.io/debug-adapter-protocol/specification#Types_ExceptionPathSegment)
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct ExceptionPathSegment {
   /// If false or missing this segment matches the names provided, otherwise it
   /// matches anything except the names provided.
@@ -463,6 +499,7 @@ pub struct ExceptionPathSegment {
 /// Specification: [`ExceptionOptions`](https://microsoft.github.io/debug-adapter-protocol/specification#Types_ExceptionOptions)
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct ExceptionOptions {
   /// A path that selects a single or multiple exceptions in a tree. If `path` is
   /// missing, the whole tree is selected.
@@ -478,6 +515,7 @@ pub struct ExceptionOptions {
 /// Specification: [FunctionBreakpoint](https://microsoft.github.io/debug-adapter-protocol/specification#Types_FunctionBreakpoint)
 #[derive(Deserialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct FunctionBreakpoint {
   /// The name of the function.
   pub name: String,
@@ -493,6 +531,7 @@ pub struct FunctionBreakpoint {
 }
 
 #[derive(Serialize, Debug, Clone)]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum StopReason {
   #[serde(rename = "step")]
   Step,
@@ -539,6 +578,7 @@ impl FromStr for StopReason {
 fromstr_deser! { StopReason }
 
 #[derive(Serialize, Debug, Clone)]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum BreakpointEventReason {
   #[serde(rename = "changed")]
   Changed,
@@ -565,6 +605,7 @@ impl FromStr for BreakpointEventReason {
 fromstr_deser! { BreakpointEventReason }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum InvalidatedAreas {
   All,
   Stacks,
@@ -604,6 +645,7 @@ fromstr_deser! { InvalidatedAreas }
 tostr_ser! { InvalidatedAreas }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum LoadedSourceEventReason {
   New,
   Changed,
@@ -641,6 +683,7 @@ fromstr_deser! { LoadedSourceEventReason }
 tostr_ser! { LoadedSourceEventReason }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum ModuleEventReason {
   New,
   Changed,
@@ -678,6 +721,7 @@ fromstr_deser! { ModuleEventReason }
 tostr_ser! { ModuleEventReason }
 
 #[derive(Serialize, Debug, Clone)]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct Module {
   /// Unique identifier for the module.
   pub id: ModuleId,
@@ -707,6 +751,7 @@ pub struct Module {
 }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum ModuleId {
   Number,
   String(String),
@@ -737,6 +782,7 @@ fromstr_deser! { ModuleId }
 tostr_ser! { ModuleId }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum OutputEventCategory {
   Console,
   Important,
@@ -779,6 +825,7 @@ fromstr_deser! { OutputEventCategory }
 tostr_ser! { OutputEventCategory }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum OutputEventGroup {
   Start,
   StartCollapsed,
@@ -816,6 +863,7 @@ fromstr_deser! { OutputEventGroup }
 tostr_ser! { OutputEventGroup }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum ProcessEventStartMethod {
   Launch,
   Attach,
@@ -853,6 +901,7 @@ fromstr_deser! { ProcessEventStartMethod }
 tostr_ser! { ProcessEventStartMethod }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum StoppedEventReason {
   Step,
   Breakpoint,
@@ -907,6 +956,7 @@ fromstr_deser! { StoppedEventReason }
 tostr_ser! { StoppedEventReason }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum ThreadEventReason {
   Started,
   Exited,
@@ -941,6 +991,7 @@ tostr_ser! { ThreadEventReason }
 
 #[derive(Deserialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct ValueFormat {
   /// Display the value in hex.
   pub hex: Option<bool>,
@@ -969,6 +1020,7 @@ pub struct StackFrameFormat {
 }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum EvaluateArgumentsContext {
   Variables,
   Watch,
@@ -1011,6 +1063,7 @@ fromstr_deser! { EvaluateArgumentsContext }
 tostr_ser! { EvaluateArgumentsContext }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum SteppingGranularity {
   Statement,
   Line,
@@ -1048,6 +1101,7 @@ fromstr_deser! { SteppingGranularity }
 tostr_ser! { SteppingGranularity }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum DataBreakpointAccessType {
   Read,
   Write,
@@ -1086,6 +1140,7 @@ tostr_ser! { DataBreakpointAccessType }
 
 #[derive(Deserialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct DataBreakpoint {
   /// An id representing the data. This id is returned from the
   /// `dataBreakpointInfo` request.
@@ -1104,6 +1159,7 @@ pub struct DataBreakpoint {
 /// Specfication: [InstructionBreakpoint](https://microsoft.github.io/debug-adapter-protocol/specification#Types_InstructionBreakpoint)
 #[derive(Deserialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct InstructionBreakpoint {
   /// The instruction reference of the breakpoint.
   /// This should be a memory or instruction pointer reference from an
@@ -1125,6 +1181,7 @@ pub struct InstructionBreakpoint {
 }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum VariablesArgumentsFilter {
   Indexed,
   Named,
@@ -1163,6 +1220,7 @@ tostr_ser! { VariablesArgumentsFilter }
 /// Specfication: [BreakpointLocation](https://microsoft.github.io/debug-adapter-protocol/specification#Types_BreakpointLocation)
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct BreakpointLocation {
   /// Start line of breakpoint location.
   pub line: i64,
@@ -1184,6 +1242,7 @@ pub struct BreakpointLocation {
 /// Specification: [CompletionItemType](https://microsoft.github.io/debug-adapter-protocol/specification#Types_CompletionItemType)
 #[derive(Serialize, Debug, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum CompletionItemType {
   Method,
   Function,
@@ -1272,6 +1331,7 @@ fromstr_deser! { CompletionItemType }
 /// Specification: [CompletionItem](https://microsoft.github.io/debug-adapter-protocol/specification#Types_CompletionItem)
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct CompletionItem {
   /// The label of this completion item. By default this is also the text that is
   /// inserted when selecting this completion.
@@ -1316,6 +1376,7 @@ pub struct CompletionItem {
 /// Specification: [DisassembledInstruction](https://microsoft.github.io/debug-adapter-protocol/specification#Types_DisassembledInstruction)
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct DisassembledInstruction {
   /// The address of the instruction. Treated as a hex value if prefixed with
   /// `0x`, or as a decimal value otherwise.
@@ -1346,6 +1407,7 @@ pub struct DisassembledInstruction {
 }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum VariablePresentationHintKind {
   /// Indicates that the object is a property.
   Property,
@@ -1423,6 +1485,7 @@ tostr_ser! { VariablePresentationHintKind }
 /// Set of attributes represented as an array of Strings. Before introducing
 /// additional values, try to use the listed values.
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum VariablePresentationHintAttributes {
   /// Indicates that the object is static.
   Static,
@@ -1484,6 +1547,7 @@ fromstr_deser! { VariablePresentationHintAttributes }
 tostr_ser! { VariablePresentationHintAttributes }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum VariablePresentationHintVisibility {
   Public,
   Private,
@@ -1528,6 +1592,7 @@ fromstr_deser! { VariablePresentationHintVisibility }
 tostr_ser! { VariablePresentationHintVisibility }
 
 #[derive(Serialize, Debug, Default, Clone)]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 pub struct VariablePresentationHint {
   /// The kind of variable. Before introducing additional values, try to use the
@@ -1556,6 +1621,7 @@ pub struct VariablePresentationHint {
 /// Specification: [ExceptionDetails](https://microsoft.github.io/debug-adapter-protocol/specification#Types_ExceptionDetails)
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct ExceptionDetails {
   /// Message contained in the exception.
   pub message: Option<String>,
@@ -1579,6 +1645,7 @@ pub struct ExceptionDetails {
 /// Specification: [GotoTarget](https://microsoft.github.io/debug-adapter-protocol/specification#Types_GotoTarget)
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct GotoTarget {
   /// Unique identifier for a goto target. This is used in the `goto` request.
   pub id: i64,
@@ -1602,6 +1669,7 @@ pub struct GotoTarget {
 ///
 /// Specification: [Scope](https://microsoft.github.io/debug-adapter-protocol/specification#Types_Scope)
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum ScopePresentationhint {
   /// Scope contains method arguments.
   Arguments,
@@ -1647,6 +1715,7 @@ tostr_ser! { ScopePresentationhint }
 /// Specification: [Scope](https://microsoft.github.io/debug-adapter-protocol/specification#Types_Scope)
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct Scope {
   /// Name of the scope such as 'Arguments', 'Locals', or 'Registers'. This
   /// String is shown in the UI as is and can be translated.
@@ -1691,6 +1760,7 @@ pub struct Scope {
 }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum StackFrameModuleid {
   Number,
   String(String),
@@ -1721,6 +1791,7 @@ fromstr_deser! { StackFrameModuleid }
 tostr_ser! { StackFrameModuleid }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum StackFramePresentationhint {
   Normal,
   Label,
@@ -1762,6 +1833,7 @@ tostr_ser! { StackFramePresentationhint }
 /// Specification: [StackFrame](https://microsoft.github.io/debug-adapter-protocol/specification#Types_StackFrame)
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct StackFrame {
   /// An identifier for the stack frame. It must be unique across all threads.
   /// This id can be used to retrieve the scopes of the frame with the `scopes`
@@ -1806,6 +1878,7 @@ pub struct StackFrame {
 /// Specification: [Thread](https://microsoft.github.io/debug-adapter-protocol/specification#Types_Thread)
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct Thread {
   /// Unique identifier for the thread.
   pub id: i64,
@@ -1830,6 +1903,7 @@ pub struct Thread {
 /// chunks.
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct Variable {
   /// The variable's name.
   pub name: String,
@@ -1873,6 +1947,7 @@ pub struct Variable {
 }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum RunInTerminalRequestArgumentsKind {
   Integrated,
   External,
@@ -1906,6 +1981,7 @@ impl ToString for RunInTerminalRequestArgumentsKind {
 tostr_ser! { RunInTerminalRequestArgumentsKind }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum StartDebuggingRequestKind {
   Launch,
   Attach,
