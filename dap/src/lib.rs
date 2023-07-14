@@ -14,7 +14,7 @@
 //! implement an adapter that writes commands to the stdin of a gdb subprocess, then parses
 //! the output it receives (this is why it's called an "adapter" - it adapts the debugger to
 //! editors that know DAP).
-//! 
+//!
 //! ## Minimal example
 //!
 //! To get started, create a binary project and add `dap` to your Cargo.toml:
