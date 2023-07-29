@@ -11,11 +11,15 @@ use crate::types::{
 /// Represents a response message that is either a cancellation or a short error string.
 #[derive(Serialize, Debug, Clone)]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
+#[serde(rename_all = "camelCase")]
 pub enum ResponseMessage {
   /// Should be sent when the request was canceled
   Cancelled,
+  /// The request may be retried once the adapter is in a 'stopped' state.
+  NotStopped,
   /// Contains the raw error in short form if [`Response::success`](Response::success) is false.
   /// This raw error might be interpreted by the client and is not shown in the UI.
+  #[serde(untagged)]
   Error(String),
 }
 
@@ -613,4 +617,44 @@ pub struct Response {
   /// false.
   #[serde(flatten, skip_serializing_if = "Option::is_none")]
   pub body: Option<ResponseBody>,
+}
+
+#[cfg(test)]
+mod test {
+  use super::*;
+
+  #[test]
+  fn test_responsemessage_is_flattened() {
+    let a = Response {
+      request_seq: 1,
+      success: false,
+      message: Some(ResponseMessage::Error("test".to_string())),
+      body: None,
+    };
+    let val = serde_json::to_value(a).unwrap();
+
+    assert!(val.get("message").unwrap().is_string());
+    assert!(val.get("message").unwrap().as_str().unwrap() == "test");
+    assert!(!val.get("message").unwrap().is_object());
+
+    let a = Response {
+      request_seq: 1,
+      success: false,
+      message: Some(ResponseMessage::Cancelled),
+      body: None,
+    };
+    let val = serde_json::to_value(a).unwrap();
+    assert!(val.get("message").unwrap().is_string());
+    assert!(val.get("message").unwrap().as_str().unwrap() == "cancelled");
+
+    let a = Response {
+      request_seq: 1,
+      success: false,
+      message: Some(ResponseMessage::NotStopped),
+      body: None,
+    };
+    let val = serde_json::to_value(a).unwrap();
+    assert!(val.get("message").unwrap().is_string());
+    assert!(val.get("message").unwrap().as_str().unwrap() == "notStopped");
+  }
 }
