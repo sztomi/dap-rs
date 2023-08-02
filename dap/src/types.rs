@@ -261,8 +261,10 @@ pub struct Capabilities {
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct CustomValue(Value);
 
+#[cfg(feature = "integration_testing")]
 struct ValueFaker;
 
+#[cfg(feature = "integration_testing")]
 impl Dummy<ValueFaker> for CustomValue {
   fn dummy_with_rng<R: Rng + ?Sized>(_: &ValueFaker, rng: &mut R) -> Self {
     CustomValue(match rng.gen_range(0..=5) {
@@ -316,7 +318,7 @@ pub struct Source {
   /// Additional data that a debug adapter might want to loop through the client.
   /// The client should leave the data intact and persist it across sessions. The
   /// client should not interpret the data.
-  #[dummy(faker = "ValueFaker")]
+  #[cfg_attr(feature = "integration_testing", dummy(faker = "ValueFaker"))]
   #[serde(skip_serializing_if = "Option::is_none")]
   pub adapter_data: Option<CustomValue>,
   /// The checksums associated with this file.
