@@ -1,11 +1,11 @@
-use std::{convert::Infallible, str::FromStr};
-
-use serde::{de, Deserialize, Deserializer};
+use serde::Deserialize;
 use serde_json::Value;
+
+#[cfg(feature = "client")]
+use serde::Serialize;
 
 use crate::{
   errors::ServerError,
-  fromstr_deser,
   prelude::{Response, ResponseBody},
   responses::ResponseMessage,
   types::{
@@ -15,29 +15,19 @@ use crate::{
   },
 };
 
-#[derive(Debug, Clone)]
+#[cfg_attr(feature = "client", derive(Serialize))]
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 pub enum PathFormat {
   Path,
   Uri,
+  #[serde(untagged)]
   Other(String),
 }
 
-impl FromStr for PathFormat {
-  type Err = Infallible;
-
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s {
-      "path" => Ok(PathFormat::Path),
-      "uri" => Ok(PathFormat::Uri),
-      other => Ok(PathFormat::Other(other.to_string())),
-    }
-  }
-}
-
-fromstr_deser! {PathFormat}
-
 //// Arguments for an Initialize request.
 /// In specification: [Initialize](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Initialize)
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct InitializeArguments {
@@ -80,6 +70,7 @@ pub struct InitializeArguments {
 
 //// Arguments for an SetBreakpoints request.
 /// In specification: [SetBreakpoints](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Initialize)
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct SetBreakpointsArguments {
@@ -96,8 +87,9 @@ pub struct SetBreakpointsArguments {
   pub source_modified: Option<bool>,
 }
 
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "camelCase"))]
+#[serde(rename_all = "camelCase")]
 pub struct CancelArguments {
   /// The ID (attribute `seq`) of the request to cancel. If missing no request is
   /// cancelled.
@@ -109,8 +101,9 @@ pub struct CancelArguments {
   pub progress_id: Option<String>,
 }
 
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct SetExceptionBreakpointsArguments {
   /// Set of exception filters specified by their ID. The set of all possible
   /// exception filters is defined by the `exceptionBreakpointFilters`
@@ -128,16 +121,18 @@ pub struct SetExceptionBreakpointsArguments {
   pub exception_options: Option<Vec<ExceptionOptions>>,
 }
 
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct SetFunctionBreakpointsArguments {
   /// The function names of the breakpoints.
   pub breakpoints: Vec<FunctionBreakpoint>,
 }
 
 //// Arguments for a Launch request.
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct LaunchRequestArguments {
   /// If true, the launch request should launch the program without enabling
   /// debugging.
@@ -156,8 +151,9 @@ pub struct LaunchRequestArguments {
 }
 
 //// Arguments for an Attach request.
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct AttachRequestArguments {
   /// Arbitrary data from the previous, restarted session.
   /// The data is sent as the `restart` attribute of the `terminated` event.
@@ -174,6 +170,7 @@ pub struct AttachRequestArguments {
 //// Currently the same as LaunchRequestArguments but might not be in the future.
 #[derive(Deserialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[cfg_attr(feature = "client", derive(Serialize))]
 pub struct AttachOrLaunchArguments {
   /// If true, the launch request should launch the program without enabling
   /// debugging.
@@ -191,8 +188,9 @@ pub struct AttachOrLaunchArguments {
 }
 
 //// Arguments for a BreakpointLocations request.
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct BreakpointLocationsArguments {
   /// The source location of the breakpoints, either `source.path` or
   /// `source.reference` must be specified.
@@ -216,8 +214,9 @@ pub struct BreakpointLocationsArguments {
 }
 
 //// Arguments for a Completions request.
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct CompletionsArguments {
   /// Returns completions in the scope of this stack frame. If not specified, the
   /// completions are returned for the global scope.
@@ -235,8 +234,9 @@ pub struct CompletionsArguments {
 }
 
 //// Arguments for a Continue request.
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct ContinueArguments {
   /// Specifies the active thread. If the debug adapter supports single thread
   /// execution (see `supportsSingleThreadExecutionRequests`) and the argument
@@ -248,8 +248,9 @@ pub struct ContinueArguments {
 }
 
 //// Arguments for a DataBreakpointInfo request.
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct DataBreakpointInfoArguments {
   /// Reference to the variable container if the data breakpoint is requested for
   /// a child of the container. The `variablesReference` must have been obtained
@@ -267,8 +268,9 @@ pub struct DataBreakpointInfoArguments {
 }
 
 //// Arguments for a Disassemble request.
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct DisassembleArguments {
   /// Memory reference to the base location containing the instructions to
   /// disassemble.
@@ -291,8 +293,9 @@ pub struct DisassembleArguments {
 }
 
 //// Arguments for a Disconnect request.
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct DisconnectArguments {
   /// A value of true indicates that this `disconnect` request is part of a
   /// restart sequence.
@@ -312,8 +315,9 @@ pub struct DisconnectArguments {
 }
 
 //// Arguments for a Evaluate request.
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct EvaluateArguments {
   /// The expression to evaluate.
   pub expression: String,
@@ -340,16 +344,18 @@ pub struct EvaluateArguments {
 }
 
 /// Arguments for a ExceptionInfo request.
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct ExceptionInfoArguments {
   /// Thread for which exception information should be retrieved.
   pub thread_id: i64,
 }
 
 /// Arguments for a Goto request.
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct GotoArguments {
   /// Set the goto target for this thread.
   pub thread_id: i64,
@@ -358,8 +364,9 @@ pub struct GotoArguments {
 }
 
 /// Arguments for a GotoTargets request.
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct GotoTargetsArguments {
   /// The source location for which the goto targets are determined.
   pub source: Source,
@@ -372,8 +379,9 @@ pub struct GotoTargetsArguments {
 }
 
 /// Arguments for a Modules request.
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct ModulesArguments {
   /// The index of the first module to return, if omitted modules start at 0.
   pub start_module: Option<i64>,
@@ -383,8 +391,9 @@ pub struct ModulesArguments {
 }
 
 /// Arguments for a Next request.
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct NextArguments {
   /// Specifies the thread for which to resume execution for one step (of the
   /// given granularity).
@@ -397,16 +406,18 @@ pub struct NextArguments {
 }
 
 /// Arguments for a Pause request.
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct PauseArguments {
   /// Pause execution for this thread.
   pub thread_id: i64,
 }
 
 /// Arguments for a ReadMemory request.
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct ReadMemoryArguments {
   /// Memory reference to the base location from which data should be read.
   pub memory_reference: String,
@@ -417,23 +428,26 @@ pub struct ReadMemoryArguments {
   pub count: i64,
 }
 
-/// Arguments for a Restart request.
+/// Arguments for a ReadMemory request.
 #[derive(Deserialize, Debug, Clone)]
+#[cfg_attr(feature = "client", derive(Serialize))]
 pub struct RestartArguments {
   pub arguments: Option<AttachOrLaunchArguments>,
 }
 
 /// Arguments for a RestartFrame request.
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct RestartFrameArguments {
   /// Restart this stackframe.
   pub frame_id: i64,
 }
 
 /// Arguments for a ReverseContinue request.
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct ReverseContinueArguments {
   /// Specifies the active thread. If the debug adapter supports single thread
   /// execution (see `supportsSingleThreadExecutionRequests`) and the
@@ -445,16 +459,18 @@ pub struct ReverseContinueArguments {
 }
 
 /// Arguments for a Scopes request.
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct ScopesArguments {
   /// Retrieve the scopes for this stackframe.
   pub frame_id: i64,
 }
 
 /// Arguments for a SetDataBreakpoints request.
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct SetDataBreakpointsArguments {
   /// The contents of this array replaces all existing data breakpoints. An empty
   /// array clears all data breakpoints.
@@ -462,8 +478,9 @@ pub struct SetDataBreakpointsArguments {
 }
 
 /// Arguments for a SetExpression request.
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct SetExpressionArguments {
   /// The l-value expression to assign to.
   pub expression: String,
@@ -477,16 +494,18 @@ pub struct SetExpressionArguments {
 }
 
 /// Arguments for a SetExpression request.
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct SetInstructionBreakpointsArguments {
   /// The instruction references of the breakpoints
   pub breakpoints: Vec<InstructionBreakpoint>,
 }
 
 /// Arguments for a SetVariable request.
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct SetVariableArguments {
   /// The reference of the variable container.
   /// See [Lifetime of Object References](https://microsoft.github.io/debug-adapter-protocol/overview#lifetime-of-objects-references)
@@ -501,8 +520,9 @@ pub struct SetVariableArguments {
 }
 
 /// Arguments for a Source request.
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct SourceArguments {
   /// Specifies the source content to load. Either `source.path` or
   /// `source.sourceReference` must be specified.
@@ -514,8 +534,9 @@ pub struct SourceArguments {
 }
 
 /// Arguments for a StackTrace request.
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct StackTraceArguments {
   /// Retrieve the stacktrace for this thread.
   pub thread_id: i64,
@@ -531,8 +552,9 @@ pub struct StackTraceArguments {
 }
 
 /// Arguments for a StepBack request.
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct StepBackArguments {
   /// Specifies the thread for which to resume execution for one step backwards
   /// (of the given granularity).
@@ -545,8 +567,9 @@ pub struct StepBackArguments {
 }
 
 /// Arguments for a StepIn request.
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct StepInArguments {
   /// Specifies the thread for which to resume execution for one step-into (of
   /// the given granularity).
@@ -561,16 +584,18 @@ pub struct StepInArguments {
 }
 
 /// Arguments for a StepInTargets request.
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct StepInTargetsArguments {
   /// The stack frame for which to retrieve the possible step-in targets.
   pub frame_id: i64,
 }
 
 /// Arguments for a StepOut request.
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct StepOutArguments {
   /// Specifies the thread for which to resume execution for one step-out (of the
   /// given granularity).
@@ -583,8 +608,9 @@ pub struct StepOutArguments {
 }
 
 /// Arguments for a Terminate request.
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct TerminateArguments {
   /// A value of true indicates that this `terminate` request is part of a
   /// restart sequence.
@@ -592,16 +618,18 @@ pub struct TerminateArguments {
 }
 
 /// Arguments for a TerminateThreads request.
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct TerminateThreadsArguments {
   /// Ids of threads to be terminated.
   pub thread_ids: Option<Vec<i64>>,
 }
 
 /// Arguments for a Variables request.
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct VariablesArguments {
   /// The variable for which to retrieve its children. The `variablesReference`
   /// must have been obtained in the current suspended state.
@@ -624,8 +652,9 @@ pub struct VariablesArguments {
 }
 
 /// Arguments for a WriteMemory request.
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct WriteMemoryArguments {
   /// Memory reference to the base location to which data should be written.
   pub memory_reference: String,
@@ -644,12 +673,9 @@ pub struct WriteMemoryArguments {
   pub data: String,
 }
 
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Clone)]
-#[serde(
-  tag = "command",
-  content = "arguments",
-  rename_all(deserialize = "camelCase", serialize = "snake_case")
-)]
+#[serde(tag = "command", content = "arguments", rename_all = "camelCase")]
 pub enum Command {
   /// The attach request is sent from the client to the debug adapter to attach to a debuggee that
   /// is already running.
@@ -973,8 +999,9 @@ pub enum Command {
 /// interface. Instead, the only common part (the sequence number) is repeated in the struct.
 ///
 /// Specification: [Request](https://microsoft.github.io/debug-adapter-protocol/specification#Base_Protocol_Request)
+#[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Clone)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "camelCase")]
 pub struct Request {
   /// Sequence number for the Request.
   ///

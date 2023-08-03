@@ -1,6 +1,9 @@
 use serde::Serialize;
 use serde_json::Value;
 
+#[cfg(feature = "client")]
+use serde::Deserialize;
+
 use crate::types::{
   Breakpoint, BreakpointEventReason, Capabilities, InvalidatedAreas, LoadedSourceEventReason,
   Module, ModuleEventReason, OutputEventCategory, OutputEventGroup, ProcessEventStartMethod,
@@ -8,6 +11,7 @@ use crate::types::{
 };
 
 //// Arguments for a Breakpoint event.
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[derive(Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct BreakpointEventBody {
@@ -20,6 +24,7 @@ pub struct BreakpointEventBody {
 }
 
 //// Arguments for a Capabilities event
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct CapabilitiesEventBody {
@@ -27,6 +32,7 @@ pub struct CapabilitiesEventBody {
 }
 
 //// Arguments for a Continued event.
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ContinuedEventBody {
@@ -38,6 +44,7 @@ pub struct ContinuedEventBody {
 }
 
 //// Arguments for a Exited event
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ExitedEventBody {
@@ -46,6 +53,7 @@ pub struct ExitedEventBody {
 }
 
 //// Arguments for a Invalidated event
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct InvalidatedEventBody {
@@ -64,6 +72,7 @@ pub struct InvalidatedEventBody {
 }
 
 //// Arguments for a LoadedSource event.
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[derive(Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct LoadedSourceEventBody {
@@ -75,6 +84,7 @@ pub struct LoadedSourceEventBody {
 }
 
 //// Arguments for a Memory event.
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct MemoryEventBody {
@@ -87,6 +97,7 @@ pub struct MemoryEventBody {
 }
 
 //// Arguments for a Module event.
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[derive(Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ModuleEventBody {
@@ -99,6 +110,7 @@ pub struct ModuleEventBody {
 }
 
 //// Arguments for an Output event.
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct OutputEventBody {
@@ -155,6 +167,7 @@ pub struct OutputEventBody {
 }
 
 //// Arguments for an Process event.
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ProcessEventBody {
@@ -180,6 +193,7 @@ pub struct ProcessEventBody {
 }
 
 //// Arguments for a ProgressEnd event.
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ProgressEndEventBody {
@@ -191,6 +205,7 @@ pub struct ProgressEndEventBody {
 }
 
 //// Arguments for a ProgressStart event.
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ProgressStartEventBody {
@@ -222,6 +237,7 @@ pub struct ProgressStartEventBody {
 }
 
 //// Arguments for a ProgressUpdate event.
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ProgressUpdateEventBody {
@@ -236,6 +252,7 @@ pub struct ProgressUpdateEventBody {
 }
 
 //// Arguments for a Stopped event.
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[derive(Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct StoppedEventBody {
@@ -275,6 +292,7 @@ pub struct StoppedEventBody {
 }
 
 //// Arguments for a Terminated event.
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct TerminatedEventBody {
@@ -286,6 +304,7 @@ pub struct TerminatedEventBody {
 }
 
 //// Arguments for a Thread event.
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[derive(Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ThreadEventBody {
@@ -296,6 +315,7 @@ pub struct ThreadEventBody {
   pub thread_id: i64,
 }
 
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[derive(Serialize, Debug, Clone)]
 #[serde(tag = "event", content = "body", rename_all = "camelCase")]
 pub enum Event {

@@ -1,8 +1,6 @@
 use std::collections::HashMap;
-use std::convert::Infallible;
-use std::str::FromStr;
 
-use serde::{de, Deserialize, Deserializer, Serialize};
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 #[cfg(feature = "integration_testing")]
@@ -10,10 +8,7 @@ use fake::{Dummy, Fake, Faker};
 #[cfg(feature = "integration_testing")]
 use rand::Rng;
 
-use crate::errors::DeserializationError;
-use crate::{fromstr_deser, tostr_ser};
-
-#[derive(Serialize, Deserialize, Debug, Default, Clone)]
+#[derive(Deserialize, Serialize, Debug, Default, Clone)]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct ExceptionBreakpointsFilter {
   /// The internal ID of the filter option. This value is passed to the
@@ -39,8 +34,8 @@ pub struct ExceptionBreakpointsFilter {
   pub condition_description: Option<String>,
 }
 
-#[derive(Serialize, Debug, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum ColumnDescriptorType {
   String,
@@ -49,26 +44,7 @@ pub enum ColumnDescriptorType {
   UnixTimestampUTC,
 }
 
-impl FromStr for ColumnDescriptorType {
-  type Err = DeserializationError;
-
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s {
-      "string" => Ok(ColumnDescriptorType::String),
-      "number" => Ok(ColumnDescriptorType::Number),
-      "boolean" => Ok(ColumnDescriptorType::Boolean),
-      "unixTimestampUTC" => Ok(ColumnDescriptorType::UnixTimestampUTC),
-      other => Err(DeserializationError::StringToEnumParseError {
-        enum_name: "ColumnDescriptorType".to_string(),
-        value: other.to_string(),
-      }),
-    }
-  }
-}
-
-fromstr_deser! { ColumnDescriptorType }
-
-#[derive(Serialize, Deserialize, Debug, Default, Clone)]
+#[derive(Deserialize, Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct ColumnDescriptor {
@@ -88,7 +64,7 @@ pub struct ColumnDescriptor {
   pub width: Option<i64>,
 }
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum ChecksumAlgorithm {
   MD5,
@@ -98,26 +74,7 @@ pub enum ChecksumAlgorithm {
   Timestamp,
 }
 
-impl FromStr for ChecksumAlgorithm {
-  type Err = DeserializationError;
-
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s {
-      "MD5" => Ok(ChecksumAlgorithm::MD5),
-      "SHA1" => Ok(ChecksumAlgorithm::SHA1),
-      "SHA256" => Ok(ChecksumAlgorithm::SHA256),
-      "timestamp" => Ok(ChecksumAlgorithm::Timestamp),
-      other => Err(DeserializationError::StringToEnumParseError {
-        enum_name: "ChecksumAlgorithm".to_string(),
-        value: other.to_string(),
-      }),
-    }
-  }
-}
-
-fromstr_deser! {ChecksumAlgorithm}
-
-#[derive(Serialize, Debug, Default, Clone)]
+#[derive(Deserialize, Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct Capabilities {
@@ -260,7 +217,7 @@ pub struct Capabilities {
   pub supports_single_thread_execution_requests: Option<bool>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Default, Clone)]
+#[derive(Deserialize, Serialize, Debug, Default, Clone)]
 pub struct CustomValue(Value);
 
 #[cfg(feature = "integration_testing")]
@@ -284,7 +241,7 @@ impl Dummy<ValueFaker> for CustomValue {
 /// specifying breakpoints.
 ///
 /// Specification: [Source](https://microsoft.github.io/debug-adapter-protocol/specification#Types_Source)
-#[derive(Serialize, Deserialize, Debug, Default, Clone)]
+#[derive(Deserialize, Serialize, Debug, Default, Clone)]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct Source {
   /// The short name of the source. Every source returned from the debug adapter
@@ -328,7 +285,7 @@ pub struct Source {
   pub checksums: Option<Vec<Checksum>>,
 }
 
-#[derive(Deserialize, Debug, Default, Clone)]
+#[derive(Deserialize, Serialize, Debug, Default, Clone)]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct SourceBreakpoint {
   /// The source line of the breakpoint or logpoint.
@@ -360,7 +317,7 @@ pub struct SourceBreakpoint {
 
 /// Information about a breakpoint created in setBreakpoints, setFunctionBreakpoints,
 /// setInstructionBreakpoints, or setDataBreakpoints requests.
-#[derive(Serialize, Debug, Default, Clone)]
+#[derive(Deserialize, Serialize, Debug, Default, Clone)]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct Breakpoint {
   /// The identifier for the breakpoint. It is needed if breakpoint events are
@@ -405,36 +362,16 @@ pub struct Breakpoint {
   pub offset: Option<i64>,
 }
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum PresentationHint {
-  #[serde(rename = "normal")]
   Normal,
-  #[serde(rename = "emphasize")]
   Emphasize,
-  #[serde(rename = "deemphasize")]
   DeEmphasize,
 }
 
-impl FromStr for PresentationHint {
-  type Err = DeserializationError;
-
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s {
-      "normal" => Ok(PresentationHint::Normal),
-      "emphasize" => Ok(PresentationHint::Emphasize),
-      "deemphasize" => Ok(PresentationHint::DeEmphasize),
-      other => Err(DeserializationError::StringToEnumParseError {
-        enum_name: "PresentationHint".to_string(),
-        value: other.to_string(),
-      }),
-    }
-  }
-}
-
-fromstr_deser! {PresentationHint}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct Checksum {
   /// The algorithm used to calculate this checksum.
@@ -445,8 +382,8 @@ pub struct Checksum {
 
 /// An ExceptionFilterOptions is used to specify an exception filter together with a condition for
 /// the setExceptionBreakpoints request.
-#[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[derive(Deserialize, Serialize, Debug, Default, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct ExceptionFilterOptions {
   /// ID of an exception filter returned by the `exceptionBreakpointFilters`
@@ -463,20 +400,17 @@ pub struct ExceptionFilterOptions {
 /// break.
 ///
 /// Specification: [`ExceptionBreakMode`](https://microsoft.github.io/debug-adapter-protocol/specification#Types_ExceptionBreakMode)
-#[derive(Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum ExceptionBreakMode {
   /// never breaks
-  #[serde(rename = "never")]
   Never,
   /// always breaks
-  #[serde(rename = "always")]
   Always,
   /// breaks when exception unhandled
-  #[serde(rename = "unhandled")]
   Unhandled,
   /// breaks if the exception is not handled by user code
-  #[serde(rename = "userUnhandled")]
   UserUnhandled,
 }
 
@@ -486,33 +420,14 @@ impl Default for ExceptionBreakMode {
   }
 }
 
-impl FromStr for ExceptionBreakMode {
-  type Err = DeserializationError;
-
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s {
-      "never" => Ok(ExceptionBreakMode::Never),
-      "always" => Ok(ExceptionBreakMode::Always),
-      "unhandled" => Ok(ExceptionBreakMode::Unhandled),
-      "userUnhandled" => Ok(ExceptionBreakMode::UserUnhandled),
-      other => Err(DeserializationError::StringToEnumParseError {
-        enum_name: "ExceptionBreakMode".to_string(),
-        value: other.to_string(),
-      }),
-    }
-  }
-}
-
-fromstr_deser! { ExceptionBreakMode }
-
 /// An ExceptionPathSegment represents a segment in a path that is used to match leafs or nodes in
 /// a tree of exceptions.
 /// If a segment consists of more than one name, it matches the names provided if negate is false
 /// or missing, or it matches anything except the names provided if negate is true.
 ///
 /// Specification: [`ExceptionPathSegment`](https://microsoft.github.io/debug-adapter-protocol/specification#Types_ExceptionPathSegment)
-#[derive(Serialize, Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[derive(Deserialize, Serialize, Debug, Default, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct ExceptionPathSegment {
   /// If false or missing this segment matches the names provided, otherwise it
@@ -527,8 +442,8 @@ pub struct ExceptionPathSegment {
 /// An ExceptionOptions assigns configuration options to a set of exceptions.
 ///
 /// Specification: [`ExceptionOptions`](https://microsoft.github.io/debug-adapter-protocol/specification#Types_ExceptionOptions)
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct ExceptionOptions {
   /// A path that selects a single or multiple exceptions in a tree. If `path` is
@@ -544,8 +459,8 @@ pub struct ExceptionOptions {
 /// Properties of a breakpoint passed to the setFunctionBreakpoints request.
 ///
 /// Specification: [FunctionBreakpoint](https://microsoft.github.io/debug-adapter-protocol/specification#Types_FunctionBreakpoint)
-#[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[derive(Deserialize, Serialize, Debug, Default, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct FunctionBreakpoint {
   /// The name of the function.
@@ -563,74 +478,31 @@ pub struct FunctionBreakpoint {
   pub hit_condition: Option<String>,
 }
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum BreakpointEventReason {
-  #[serde(rename = "changed")]
   Changed,
-  #[serde(rename = "new")]
   New,
-  #[serde(rename = "removed")]
   Removed,
+  #[serde(untagged)]
   String(String),
 }
 
-impl FromStr for BreakpointEventReason {
-  type Err = Infallible;
-
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s {
-      "changed" => Ok(BreakpointEventReason::Changed),
-      "new" => Ok(BreakpointEventReason::New),
-      "removed" => Ok(BreakpointEventReason::Removed),
-      other => Ok(BreakpointEventReason::String(other.to_string())),
-    }
-  }
-}
-
-fromstr_deser! { BreakpointEventReason }
-
-#[derive(Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum InvalidatedAreas {
   All,
   Stacks,
   Threads,
   Variables,
+  #[serde(untagged)]
   String(String),
 }
 
-impl FromStr for InvalidatedAreas {
-  type Err = DeserializationError;
-
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s {
-      "all" => Ok(InvalidatedAreas::All),
-      "stacks" => Ok(InvalidatedAreas::Stacks),
-      "threads" => Ok(InvalidatedAreas::Threads),
-      "variables" => Ok(InvalidatedAreas::Variables),
-      other => Ok(InvalidatedAreas::String(other.to_string())),
-    }
-  }
-}
-
-impl ToString for InvalidatedAreas {
-  fn to_string(&self) -> String {
-    match &self {
-      InvalidatedAreas::All => "all",
-      InvalidatedAreas::Stacks => "stacks",
-      InvalidatedAreas::Threads => "threads",
-      InvalidatedAreas::Variables => "variables",
-      InvalidatedAreas::String(other) => other,
-    }
-    .to_string()
-  }
-}
-
-fromstr_deser! { InvalidatedAreas }
-tostr_ser! { InvalidatedAreas }
-
-#[derive(Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum LoadedSourceEventReason {
   New,
@@ -638,37 +510,8 @@ pub enum LoadedSourceEventReason {
   Removed,
 }
 
-impl FromStr for LoadedSourceEventReason {
-  type Err = DeserializationError;
-
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s {
-      "new" => Ok(LoadedSourceEventReason::New),
-      "changed" => Ok(LoadedSourceEventReason::Changed),
-      "removed" => Ok(LoadedSourceEventReason::Removed),
-      other => Err(DeserializationError::StringToEnumParseError {
-        enum_name: "LoadedSourceEventReason".to_string(),
-        value: other.to_string(),
-      }),
-    }
-  }
-}
-
-impl ToString for LoadedSourceEventReason {
-  fn to_string(&self) -> String {
-    match &self {
-      LoadedSourceEventReason::New => "new",
-      LoadedSourceEventReason::Changed => "changed",
-      LoadedSourceEventReason::Removed => "removed",
-    }
-    .to_string()
-  }
-}
-
-fromstr_deser! { LoadedSourceEventReason }
-tostr_ser! { LoadedSourceEventReason }
-
-#[derive(Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum ModuleEventReason {
   New,
@@ -676,37 +519,8 @@ pub enum ModuleEventReason {
   Removed,
 }
 
-impl FromStr for ModuleEventReason {
-  type Err = DeserializationError;
-
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s {
-      "new" => Ok(ModuleEventReason::New),
-      "changed" => Ok(ModuleEventReason::Changed),
-      "removed" => Ok(ModuleEventReason::Removed),
-      other => Err(DeserializationError::StringToEnumParseError {
-        enum_name: "ModuleEventReason".to_string(),
-        value: other.to_string(),
-      }),
-    }
-  }
-}
-
-impl ToString for ModuleEventReason {
-  fn to_string(&self) -> String {
-    match &self {
-      ModuleEventReason::New => "new",
-      ModuleEventReason::Changed => "changed",
-      ModuleEventReason::Removed => "removed",
-    }
-    .to_string()
-  }
-}
-
-fromstr_deser! { ModuleEventReason }
-tostr_ser! { ModuleEventReason }
-
-#[derive(Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct Module {
   /// Unique identifier for the module.
@@ -744,38 +558,17 @@ pub struct Module {
   pub address_range: Option<String>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum ModuleId {
   Number,
+  #[serde(untagged)]
   String(String),
 }
 
-impl FromStr for ModuleId {
-  type Err = DeserializationError;
-
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s {
-      "number" => Ok(ModuleId::Number),
-      other => Ok(ModuleId::String(other.to_string())),
-    }
-  }
-}
-
-impl ToString for ModuleId {
-  fn to_string(&self) -> String {
-    match &self {
-      ModuleId::Number => "number",
-      ModuleId::String(other) => other,
-    }
-    .to_string()
-  }
-}
-
-fromstr_deser! { ModuleId }
-tostr_ser! { ModuleId }
-
-#[derive(Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum OutputEventCategory {
   Console,
@@ -783,42 +576,12 @@ pub enum OutputEventCategory {
   Stdout,
   Stderr,
   Telemetry,
+  #[serde(untagged)]
   String(String),
 }
 
-impl FromStr for OutputEventCategory {
-  type Err = DeserializationError;
-
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s {
-      "console" => Ok(OutputEventCategory::Console),
-      "important" => Ok(OutputEventCategory::Important),
-      "stdout" => Ok(OutputEventCategory::Stdout),
-      "stderr" => Ok(OutputEventCategory::Stderr),
-      "telemetry" => Ok(OutputEventCategory::Telemetry),
-      other => Ok(OutputEventCategory::String(other.to_string())),
-    }
-  }
-}
-
-impl ToString for OutputEventCategory {
-  fn to_string(&self) -> String {
-    match &self {
-      OutputEventCategory::Console => "console",
-      OutputEventCategory::Important => "important",
-      OutputEventCategory::Stdout => "stdout",
-      OutputEventCategory::Stderr => "stderr",
-      OutputEventCategory::Telemetry => "telemetry",
-      OutputEventCategory::String(other) => other,
-    }
-    .to_string()
-  }
-}
-
-fromstr_deser! { OutputEventCategory }
-tostr_ser! { OutputEventCategory }
-
-#[derive(Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum OutputEventGroup {
   Start,
@@ -826,37 +589,8 @@ pub enum OutputEventGroup {
   End,
 }
 
-impl FromStr for OutputEventGroup {
-  type Err = DeserializationError;
-
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s {
-      "start" => Ok(OutputEventGroup::Start),
-      "startCollapsed" => Ok(OutputEventGroup::StartCollapsed),
-      "end" => Ok(OutputEventGroup::End),
-      other => Err(DeserializationError::StringToEnumParseError {
-        enum_name: "OutputEventGroup".to_string(),
-        value: other.to_string(),
-      }),
-    }
-  }
-}
-
-impl ToString for OutputEventGroup {
-  fn to_string(&self) -> String {
-    match &self {
-      OutputEventGroup::Start => "start",
-      OutputEventGroup::StartCollapsed => "startCollapsed",
-      OutputEventGroup::End => "end",
-    }
-    .to_string()
-  }
-}
-
-fromstr_deser! { OutputEventGroup }
-tostr_ser! { OutputEventGroup }
-
-#[derive(Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum ProcessEventStartMethod {
   Launch,
@@ -864,37 +598,8 @@ pub enum ProcessEventStartMethod {
   AttachForSuspendedLaunch,
 }
 
-impl FromStr for ProcessEventStartMethod {
-  type Err = DeserializationError;
-
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s {
-      "launch" => Ok(ProcessEventStartMethod::Launch),
-      "attach" => Ok(ProcessEventStartMethod::Attach),
-      "attachForSuspendedLaunch" => Ok(ProcessEventStartMethod::AttachForSuspendedLaunch),
-      other => Err(DeserializationError::StringToEnumParseError {
-        enum_name: "ProcessEventStartmethod".to_string(),
-        value: other.to_string(),
-      }),
-    }
-  }
-}
-
-impl ToString for ProcessEventStartMethod {
-  fn to_string(&self) -> String {
-    match &self {
-      ProcessEventStartMethod::Launch => "launch",
-      ProcessEventStartMethod::Attach => "attach",
-      ProcessEventStartMethod::AttachForSuspendedLaunch => "attachForSuspendedLaunch",
-    }
-    .to_string()
-  }
-}
-
-fromstr_deser! { ProcessEventStartMethod }
-tostr_ser! { ProcessEventStartMethod }
-
-#[derive(Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum StoppedEventReason {
   Step,
@@ -906,85 +611,22 @@ pub enum StoppedEventReason {
   Function,
   Data,
   Instruction,
+  #[serde(untagged)]
   String(String),
 }
 
-impl FromStr for StoppedEventReason {
-  type Err = DeserializationError;
-
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s {
-      "step" => Ok(StoppedEventReason::Step),
-      "breakpoint" => Ok(StoppedEventReason::Breakpoint),
-      "exception" => Ok(StoppedEventReason::Exception),
-      "pause" => Ok(StoppedEventReason::Pause),
-      "entry" => Ok(StoppedEventReason::Entry),
-      "goto" => Ok(StoppedEventReason::Goto),
-      "function" => Ok(StoppedEventReason::Function),
-      "data" => Ok(StoppedEventReason::Data),
-      "instruction" => Ok(StoppedEventReason::Instruction),
-      other => Ok(StoppedEventReason::String(other.to_string())),
-    }
-  }
-}
-
-impl ToString for StoppedEventReason {
-  fn to_string(&self) -> String {
-    match &self {
-      StoppedEventReason::Step => "step",
-      StoppedEventReason::Breakpoint => "breakpoint",
-      StoppedEventReason::Exception => "exception",
-      StoppedEventReason::Pause => "pause",
-      StoppedEventReason::Entry => "entry",
-      StoppedEventReason::Goto => "goto",
-      StoppedEventReason::Function => "function",
-      StoppedEventReason::Data => "data",
-      StoppedEventReason::Instruction => "instruction",
-      StoppedEventReason::String(other) => other,
-    }
-    .to_string()
-  }
-}
-
-fromstr_deser! { StoppedEventReason }
-tostr_ser! { StoppedEventReason }
-
-#[derive(Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum ThreadEventReason {
   Started,
   Exited,
+  #[serde(untagged)]
   String(String),
 }
 
-impl FromStr for ThreadEventReason {
-  type Err = DeserializationError;
-
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s {
-      "started" => Ok(ThreadEventReason::Started),
-      "exited" => Ok(ThreadEventReason::Exited),
-      other => Ok(ThreadEventReason::String(other.to_string())),
-    }
-  }
-}
-
-impl ToString for ThreadEventReason {
-  fn to_string(&self) -> String {
-    match &self {
-      ThreadEventReason::Started => "started",
-      ThreadEventReason::Exited => "exited",
-      ThreadEventReason::String(other) => other,
-    }
-    .to_string()
-  }
-}
-
-fromstr_deser! { ThreadEventReason }
-tostr_ser! { ThreadEventReason }
-
-#[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[derive(Deserialize, Serialize, Debug, Default, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct ValueFormat {
   /// Display the value in hex.
@@ -992,8 +634,8 @@ pub struct ValueFormat {
   pub hex: Option<bool>,
 }
 
-#[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[derive(Deserialize, Serialize, Debug, Default, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct StackFrameFormat {
   /// Displays parameters for the stack frame.
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -1019,7 +661,8 @@ pub struct StackFrameFormat {
   pub include_all: Option<bool>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum EvaluateArgumentsContext {
   Variables,
@@ -1027,42 +670,12 @@ pub enum EvaluateArgumentsContext {
   Repl,
   Hover,
   Clipboard,
+  #[serde(untagged)]
   String(String),
 }
 
-impl FromStr for EvaluateArgumentsContext {
-  type Err = DeserializationError;
-
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s {
-      "variables" => Ok(EvaluateArgumentsContext::Variables),
-      "watch" => Ok(EvaluateArgumentsContext::Watch),
-      "repl" => Ok(EvaluateArgumentsContext::Repl),
-      "hover" => Ok(EvaluateArgumentsContext::Hover),
-      "clipboard" => Ok(EvaluateArgumentsContext::Clipboard),
-      other => Ok(EvaluateArgumentsContext::String(other.to_string())),
-    }
-  }
-}
-
-impl ToString for EvaluateArgumentsContext {
-  fn to_string(&self) -> String {
-    match &self {
-      EvaluateArgumentsContext::Variables => "variables",
-      EvaluateArgumentsContext::Watch => "watch",
-      EvaluateArgumentsContext::Repl => "repl",
-      EvaluateArgumentsContext::Hover => "hover",
-      EvaluateArgumentsContext::Clipboard => "clipboard",
-      EvaluateArgumentsContext::String(other) => other,
-    }
-    .to_string()
-  }
-}
-
-fromstr_deser! { EvaluateArgumentsContext }
-tostr_ser! { EvaluateArgumentsContext }
-
-#[derive(Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum SteppingGranularity {
   Statement,
@@ -1070,37 +683,8 @@ pub enum SteppingGranularity {
   Instruction,
 }
 
-impl FromStr for SteppingGranularity {
-  type Err = DeserializationError;
-
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s {
-      "statement" => Ok(SteppingGranularity::Statement),
-      "line" => Ok(SteppingGranularity::Line),
-      "instruction" => Ok(SteppingGranularity::Instruction),
-      other => Err(DeserializationError::StringToEnumParseError {
-        enum_name: "SteppingGranularity".to_string(),
-        value: other.to_string(),
-      }),
-    }
-  }
-}
-
-impl ToString for SteppingGranularity {
-  fn to_string(&self) -> String {
-    match &self {
-      SteppingGranularity::Statement => "statement",
-      SteppingGranularity::Line => "line",
-      SteppingGranularity::Instruction => "instruction",
-    }
-    .to_string()
-  }
-}
-
-fromstr_deser! { SteppingGranularity }
-tostr_ser! { SteppingGranularity }
-
-#[derive(Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum DataBreakpointAccessType {
   Read,
@@ -1108,38 +692,8 @@ pub enum DataBreakpointAccessType {
   ReadWrite,
 }
 
-impl FromStr for DataBreakpointAccessType {
-  type Err = DeserializationError;
-
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s {
-      "read" => Ok(DataBreakpointAccessType::Read),
-      "write" => Ok(DataBreakpointAccessType::Write),
-      "readWrite" => Ok(DataBreakpointAccessType::ReadWrite),
-      other => Err(DeserializationError::StringToEnumParseError {
-        enum_name: "DataBreakpointAccessType".to_string(),
-        value: other.to_string(),
-      }),
-    }
-  }
-}
-
-impl ToString for DataBreakpointAccessType {
-  fn to_string(&self) -> String {
-    match &self {
-      DataBreakpointAccessType::Read => "read",
-      DataBreakpointAccessType::Write => "write",
-      DataBreakpointAccessType::ReadWrite => "readWrite",
-    }
-    .to_string()
-  }
-}
-
-fromstr_deser! { DataBreakpointAccessType }
-tostr_ser! { DataBreakpointAccessType }
-
-#[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[derive(Deserialize, Serialize, Debug, Default, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct DataBreakpoint {
   /// An id representing the data. This id is returned from the
@@ -1160,8 +714,8 @@ pub struct DataBreakpoint {
 /// Properties of a breakpoint passed to the setInstructionBreakpoints request
 ///
 /// Specfication: [InstructionBreakpoint](https://microsoft.github.io/debug-adapter-protocol/specification#Types_InstructionBreakpoint)
-#[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[derive(Deserialize, Serialize, Debug, Default, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct InstructionBreakpoint {
   /// The instruction reference of the breakpoint.
@@ -1186,46 +740,19 @@ pub struct InstructionBreakpoint {
   pub hit_condition: Option<String>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum VariablesArgumentsFilter {
   Indexed,
   Named,
 }
 
-impl FromStr for VariablesArgumentsFilter {
-  type Err = DeserializationError;
-
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s {
-      "indexed" => Ok(VariablesArgumentsFilter::Indexed),
-      "named" => Ok(VariablesArgumentsFilter::Named),
-      other => Err(DeserializationError::StringToEnumParseError {
-        enum_name: "VariablesArgumentsFilter".to_string(),
-        value: other.to_string(),
-      }),
-    }
-  }
-}
-
-impl ToString for VariablesArgumentsFilter {
-  fn to_string(&self) -> String {
-    match &self {
-      VariablesArgumentsFilter::Indexed => "indexed",
-      VariablesArgumentsFilter::Named => "named",
-    }
-    .to_string()
-  }
-}
-
-fromstr_deser! { VariablesArgumentsFilter }
-tostr_ser! { VariablesArgumentsFilter }
-
 /// Properties of a breakpoint location returned from the breakpointLocations request.
 
 /// Specfication: [BreakpointLocation](https://microsoft.github.io/debug-adapter-protocol/specification#Types_BreakpointLocation)
-#[derive(Serialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[derive(Deserialize, Serialize, Debug, Default, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct BreakpointLocation {
   /// Start line of breakpoint location.
@@ -1249,8 +776,8 @@ pub struct BreakpointLocation {
 /// icons for all of them
 ///
 /// Specification: [CompletionItemType](https://microsoft.github.io/debug-adapter-protocol/specification#Types_CompletionItemType)
-#[derive(Serialize, Debug, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum CompletionItemType {
   Method,
@@ -1274,72 +801,11 @@ pub enum CompletionItemType {
   CustomColor,
 }
 
-impl FromStr for CompletionItemType {
-  type Err = DeserializationError;
-
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s {
-      "method" => Ok(CompletionItemType::Method),
-      "function" => Ok(CompletionItemType::Function),
-      "constructor" => Ok(CompletionItemType::Constructor),
-      "field" => Ok(CompletionItemType::Field),
-      "variable" => Ok(CompletionItemType::Variable),
-      "class" => Ok(CompletionItemType::Class),
-      "interface" => Ok(CompletionItemType::Interface),
-      "module" => Ok(CompletionItemType::Module),
-      "property" => Ok(CompletionItemType::Property),
-      "unit" => Ok(CompletionItemType::Unit),
-      "value" => Ok(CompletionItemType::Value),
-      "enum" => Ok(CompletionItemType::Enum),
-      "keyword" => Ok(CompletionItemType::Keyword),
-      "snippet" => Ok(CompletionItemType::Snippet),
-      "text" => Ok(CompletionItemType::Text),
-      "color" => Ok(CompletionItemType::Color),
-      "file" => Ok(CompletionItemType::File),
-      "reference" => Ok(CompletionItemType::Reference),
-      "customcolor" => Ok(CompletionItemType::CustomColor),
-      other => Err(DeserializationError::StringToEnumParseError {
-        enum_name: "CompletionItemType".to_string(),
-        value: other.to_string(),
-      }),
-    }
-  }
-}
-
-impl ToString for CompletionItemType {
-  fn to_string(&self) -> String {
-    match &self {
-      CompletionItemType::Method => "method",
-      CompletionItemType::Function => "function",
-      CompletionItemType::Constructor => "constructor",
-      CompletionItemType::Field => "field",
-      CompletionItemType::Variable => "variable",
-      CompletionItemType::Class => "class",
-      CompletionItemType::Interface => "interface",
-      CompletionItemType::Module => "module",
-      CompletionItemType::Property => "property",
-      CompletionItemType::Unit => "unit",
-      CompletionItemType::Value => "value",
-      CompletionItemType::Enum => "enum",
-      CompletionItemType::Keyword => "keyword",
-      CompletionItemType::Snippet => "snippet",
-      CompletionItemType::Text => "text",
-      CompletionItemType::Color => "color",
-      CompletionItemType::File => "file",
-      CompletionItemType::Reference => "reference",
-      CompletionItemType::CustomColor => "customcolor",
-    }
-    .to_string()
-  }
-}
-
-fromstr_deser! { CompletionItemType }
-
 /// `CompletionItems` are the suggestions returned from the `completions` request.
 ///
 /// Specification: [CompletionItem](https://microsoft.github.io/debug-adapter-protocol/specification#Types_CompletionItem)
-#[derive(Serialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[derive(Deserialize, Serialize, Debug, Default, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct CompletionItem {
   /// The label of this completion item. By default this is also the text that is
@@ -1391,8 +857,8 @@ pub struct CompletionItem {
 /// Represents a single disassembled instruction.
 ///
 /// Specification: [DisassembledInstruction](https://microsoft.github.io/debug-adapter-protocol/specification#Types_DisassembledInstruction)
-#[derive(Serialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[derive(Deserialize, Serialize, Debug, Default, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct DisassembledInstruction {
   /// The address of the instruction. Treated as a hex value if prefixed with
@@ -1430,7 +896,8 @@ pub struct DisassembledInstruction {
   pub end_column: Option<i64>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum VariablePresentationHintKind {
   /// Indicates that the object is a property.
@@ -1459,56 +926,14 @@ pub enum VariablePresentationHintKind {
   /// registered for the object. The `hasDataBreakpoint` attribute should
   /// generally be used instead.
   DataBreakpoint,
+  #[serde(untagged)]
   String(String),
 }
 
-impl FromStr for VariablePresentationHintKind {
-  type Err = DeserializationError;
-
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s {
-      "property" => Ok(VariablePresentationHintKind::Property),
-      "method" => Ok(VariablePresentationHintKind::Method),
-      "class" => Ok(VariablePresentationHintKind::Class),
-      "data" => Ok(VariablePresentationHintKind::Data),
-      "event" => Ok(VariablePresentationHintKind::Event),
-      "baseClass" => Ok(VariablePresentationHintKind::BaseClass),
-      "innerClass" => Ok(VariablePresentationHintKind::InnerClass),
-      "interface" => Ok(VariablePresentationHintKind::Interface),
-      "mostDerivedClass" => Ok(VariablePresentationHintKind::MostDerivedClass),
-      "virtual" => Ok(VariablePresentationHintKind::Virtual),
-      "dataBreakpoint" => Ok(VariablePresentationHintKind::DataBreakpoint),
-      other => Ok(VariablePresentationHintKind::String(other.to_string())),
-    }
-  }
-}
-
-impl ToString for VariablePresentationHintKind {
-  fn to_string(&self) -> String {
-    match &self {
-      VariablePresentationHintKind::Property => "property",
-      VariablePresentationHintKind::Method => "method",
-      VariablePresentationHintKind::Class => "class",
-      VariablePresentationHintKind::Data => "data",
-      VariablePresentationHintKind::Event => "event",
-      VariablePresentationHintKind::BaseClass => "baseClass",
-      VariablePresentationHintKind::InnerClass => "innerClass",
-      VariablePresentationHintKind::Interface => "interface",
-      VariablePresentationHintKind::MostDerivedClass => "mostDerivedClass",
-      VariablePresentationHintKind::Virtual => "virtual",
-      VariablePresentationHintKind::DataBreakpoint => "dataBreakpoint",
-      VariablePresentationHintKind::String(other) => other,
-    }
-    .to_string()
-  }
-}
-
-fromstr_deser! { VariablePresentationHintKind }
-tostr_ser! { VariablePresentationHintKind }
-
 /// Set of attributes represented as an array of Strings. Before introducing
 /// additional values, try to use the listed values.
-#[derive(Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum VariablePresentationHintAttributes {
   /// Indicates that the object is static.
@@ -1527,50 +952,12 @@ pub enum VariablePresentationHintAttributes {
   HasSideEffects,
   /// Indicates that the object has its value tracked by a data breakpoint.
   HasDataBreakpoint,
+  #[serde(untagged)]
   String(String),
 }
 
-impl FromStr for VariablePresentationHintAttributes {
-  type Err = DeserializationError;
-
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s {
-      "static" => Ok(VariablePresentationHintAttributes::Static),
-      "constant" => Ok(VariablePresentationHintAttributes::Constant),
-      "readOnly" => Ok(VariablePresentationHintAttributes::ReadOnly),
-      "rawString" => Ok(VariablePresentationHintAttributes::RawString),
-      "hasObjectId" => Ok(VariablePresentationHintAttributes::HasObjectId),
-      "canHaveObjectId" => Ok(VariablePresentationHintAttributes::CanHaveObjectId),
-      "hasSideEffects" => Ok(VariablePresentationHintAttributes::HasSideEffects),
-      "hasDataBreakpoint" => Ok(VariablePresentationHintAttributes::HasDataBreakpoint),
-      other => Ok(VariablePresentationHintAttributes::String(
-        other.to_string(),
-      )),
-    }
-  }
-}
-
-impl ToString for VariablePresentationHintAttributes {
-  fn to_string(&self) -> String {
-    match &self {
-      VariablePresentationHintAttributes::Static => "static",
-      VariablePresentationHintAttributes::Constant => "constant",
-      VariablePresentationHintAttributes::ReadOnly => "readOnly",
-      VariablePresentationHintAttributes::RawString => "rawString",
-      VariablePresentationHintAttributes::HasObjectId => "hasObjectId",
-      VariablePresentationHintAttributes::CanHaveObjectId => "canHaveObjectId",
-      VariablePresentationHintAttributes::HasSideEffects => "hasSideEffects",
-      VariablePresentationHintAttributes::HasDataBreakpoint => "hasDataBreakpoint",
-      VariablePresentationHintAttributes::String(other) => other,
-    }
-    .to_string()
-  }
-}
-
-fromstr_deser! { VariablePresentationHintAttributes }
-tostr_ser! { VariablePresentationHintAttributes }
-
-#[derive(Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum VariablePresentationHintVisibility {
   Public,
@@ -1578,46 +965,13 @@ pub enum VariablePresentationHintVisibility {
   Protected,
   Internal,
   Final,
+  #[serde(untagged)]
   String(String),
 }
 
-impl FromStr for VariablePresentationHintVisibility {
-  type Err = DeserializationError;
-
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s {
-      "public" => Ok(VariablePresentationHintVisibility::Public),
-      "private" => Ok(VariablePresentationHintVisibility::Private),
-      "protected" => Ok(VariablePresentationHintVisibility::Protected),
-      "internal" => Ok(VariablePresentationHintVisibility::Internal),
-      "final" => Ok(VariablePresentationHintVisibility::Final),
-      other => Ok(VariablePresentationHintVisibility::String(
-        other.to_string(),
-      )),
-    }
-  }
-}
-
-impl ToString for VariablePresentationHintVisibility {
-  fn to_string(&self) -> String {
-    match &self {
-      VariablePresentationHintVisibility::Public => "public",
-      VariablePresentationHintVisibility::Private => "private",
-      VariablePresentationHintVisibility::Protected => "protected",
-      VariablePresentationHintVisibility::Internal => "internal",
-      VariablePresentationHintVisibility::Final => "final",
-      VariablePresentationHintVisibility::String(other) => other,
-    }
-    .to_string()
-  }
-}
-
-fromstr_deser! { VariablePresentationHintVisibility }
-tostr_ser! { VariablePresentationHintVisibility }
-
-#[derive(Serialize, Debug, Default, Clone)]
+#[derive(Deserialize, Serialize, Debug, Default, Clone)]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[serde(rename_all = "camelCase")]
 pub struct VariablePresentationHint {
   /// The kind of variable. Before introducing additional values, try to use the
   /// listed values.
@@ -1678,8 +1032,8 @@ pub struct VariablePresentationHint {
 /// Detailed information about an exception that has occurred.
 ///
 /// Specification: [ExceptionDetails](https://microsoft.github.io/debug-adapter-protocol/specification#Types_ExceptionDetails)
-#[derive(Serialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[derive(Deserialize, Serialize, Debug, Default, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct ExceptionDetails {
   /// Message contained in the exception.
@@ -1708,8 +1062,8 @@ pub struct ExceptionDetails {
 /// The possible goto targets can be determined via the gotoTargets request.
 ///
 /// Specification: [GotoTarget](https://microsoft.github.io/debug-adapter-protocol/specification#Types_GotoTarget)
-#[derive(Serialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[derive(Deserialize, Serialize, Debug, Default, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct GotoTarget {
   /// Unique identifier for a goto target. This is used in the `goto` request.
@@ -1737,7 +1091,8 @@ pub struct GotoTarget {
 /// missing, the scope is shown with a generic UI.
 ///
 /// Specification: [Scope](https://microsoft.github.io/debug-adapter-protocol/specification#Types_Scope)
-#[derive(Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum ScopePresentationhint {
   /// Scope contains method arguments.
@@ -1747,43 +1102,16 @@ pub enum ScopePresentationhint {
   /// Scope contains registers. Only a single `registers` scope
   /// should be returned from a `scopes` request.
   Registers,
+  #[serde(untagged)]
   String(String),
 }
-
-impl FromStr for ScopePresentationhint {
-  type Err = DeserializationError;
-
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s {
-      "arguments" => Ok(ScopePresentationhint::Arguments),
-      "locals" => Ok(ScopePresentationhint::Locals),
-      "registers" => Ok(ScopePresentationhint::Registers),
-      other => Ok(ScopePresentationhint::String(other.to_string())),
-    }
-  }
-}
-
-impl ToString for ScopePresentationhint {
-  fn to_string(&self) -> String {
-    match &self {
-      ScopePresentationhint::Arguments => "arguments",
-      ScopePresentationhint::Locals => "locals",
-      ScopePresentationhint::Registers => "registers",
-      ScopePresentationhint::String(other) => other,
-    }
-    .to_string()
-  }
-}
-
-fromstr_deser! { ScopePresentationhint }
-tostr_ser! { ScopePresentationhint }
 
 /// A Scope is a named container for variables. Optionally a scope can map to a source or a range
 /// within a source.
 ///
 /// Specification: [Scope](https://microsoft.github.io/debug-adapter-protocol/specification#Types_Scope)
-#[derive(Serialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[derive(Deserialize, Serialize, Debug, Default, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct Scope {
   /// Name of the scope such as 'Arguments', 'Locals', or 'Registers'. This
@@ -1838,38 +1166,16 @@ pub struct Scope {
   pub end_column: Option<i64>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(untagged)]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum StackFrameModuleid {
-  Number,
+  Number(i64),
   String(String),
 }
 
-impl FromStr for StackFrameModuleid {
-  type Err = DeserializationError;
-
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s {
-      "number" => Ok(StackFrameModuleid::Number),
-      other => Ok(StackFrameModuleid::String(other.to_string())),
-    }
-  }
-}
-
-impl ToString for StackFrameModuleid {
-  fn to_string(&self) -> String {
-    match &self {
-      StackFrameModuleid::Number => "number",
-      StackFrameModuleid::String(other) => other,
-    }
-    .to_string()
-  }
-}
-
-fromstr_deser! { StackFrameModuleid }
-tostr_ser! { StackFrameModuleid }
-
-#[derive(Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum StackFramePresentationhint {
   Normal,
@@ -1877,41 +1183,11 @@ pub enum StackFramePresentationhint {
   Subtle,
 }
 
-impl FromStr for StackFramePresentationhint {
-  type Err = DeserializationError;
-
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s {
-      "normal" => Ok(StackFramePresentationhint::Normal),
-      "label" => Ok(StackFramePresentationhint::Label),
-      "subtle" => Ok(StackFramePresentationhint::Subtle),
-      other => Err(DeserializationError::StringToEnumParseError {
-        enum_name: "StackFramePresentationhint".to_string(),
-        value: other.to_string(),
-      }),
-    }
-  }
-}
-
-impl ToString for StackFramePresentationhint {
-  fn to_string(&self) -> String {
-    match &self {
-      StackFramePresentationhint::Normal => "normal",
-      StackFramePresentationhint::Label => "label",
-      StackFramePresentationhint::Subtle => "subtle",
-    }
-    .to_string()
-  }
-}
-
-fromstr_deser! { StackFramePresentationhint }
-tostr_ser! { StackFramePresentationhint }
-
 /// A Stackframe contains the source location.
 ///
 /// Specification: [StackFrame](https://microsoft.github.io/debug-adapter-protocol/specification#Types_StackFrame)
-#[derive(Serialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[derive(Deserialize, Serialize, Debug, Default, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct StackFrame {
   /// An identifier for the stack frame. It must be unique across all threads.
@@ -1962,8 +1238,8 @@ pub struct StackFrame {
 /// A thread.
 ///
 /// Specification: [Thread](https://microsoft.github.io/debug-adapter-protocol/specification#Types_Thread)
-#[derive(Serialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+#[derive(Deserialize, Serialize, Debug, Default, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct Thread {
   /// Unique identifier for the thread.
@@ -1987,7 +1263,7 @@ pub struct Thread {
 ///
 /// The client can use this information to present the children in a paged UI and fetch them in
 /// chunks.
-#[derive(Serialize, Debug, Default, Clone)]
+#[derive(Deserialize, Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct Variable {
@@ -2038,74 +1314,21 @@ pub struct Variable {
   pub memory_reference: Option<String>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum RunInTerminalRequestArgumentsKind {
   Integrated,
   External,
 }
 
-impl FromStr for RunInTerminalRequestArgumentsKind {
-  type Err = DeserializationError;
-
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s {
-      "integrated" => Ok(RunInTerminalRequestArgumentsKind::Integrated),
-      "external" => Ok(RunInTerminalRequestArgumentsKind::External),
-      other => Err(DeserializationError::StringToEnumParseError {
-        enum_name: "RunInTerminalRequestArgumentsKind".to_string(),
-        value: other.to_string(),
-      }),
-    }
-  }
-}
-
-impl ToString for RunInTerminalRequestArgumentsKind {
-  fn to_string(&self) -> String {
-    match &self {
-      RunInTerminalRequestArgumentsKind::Integrated => "integrated",
-      RunInTerminalRequestArgumentsKind::External => "external",
-    }
-    .to_string()
-  }
-}
-
-tostr_ser! { RunInTerminalRequestArgumentsKind }
-
-#[derive(Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum StartDebuggingRequestKind {
   Launch,
   Attach,
 }
-
-impl FromStr for StartDebuggingRequestKind {
-  type Err = DeserializationError;
-
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s {
-      "launch" => Ok(StartDebuggingRequestKind::Launch),
-      "attach" => Ok(StartDebuggingRequestKind::Attach),
-      other => Err(DeserializationError::StringToEnumParseError {
-        enum_name: "StartDebuggingRequestArgumentsRequest".to_string(),
-        value: other.to_string(),
-      }),
-    }
-  }
-}
-
-impl ToString for StartDebuggingRequestKind {
-  fn to_string(&self) -> String {
-    match &self {
-      StartDebuggingRequestKind::Launch => "launch",
-      StartDebuggingRequestKind::Attach => "attach",
-    }
-    .to_string()
-  }
-}
-
-fromstr_deser! { StartDebuggingRequestKind }
-tostr_ser! { StartDebuggingRequestKind }
 
 /// A structured message object. Used to return errors from requests.
 ///
@@ -2113,6 +1336,7 @@ tostr_ser! { StartDebuggingRequestKind }
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
+#[cfg_attr(feature = "client", derive(Deserialize))]
 pub struct Message {
   /// Unique (within a debug adapter implementation) identifier for the message.
   /// The purpose of these error IDs is to help extension authors that have the
@@ -2136,4 +1360,37 @@ pub struct Message {
   pub url: Option<String>,
   /// A label that is presented to the user as the UI for opening the url.
   pub url_label: Option<String>,
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[allow(unused)]
+  #[test]
+  fn test_checksum_algorithm_serde() {
+    let sha = ChecksumAlgorithm::SHA256;
+    let sha_ser = serde_json::to_value(sha).unwrap();
+    assert_eq!("SHA256", sha_ser);
+    let sha_deser: ChecksumAlgorithm = serde_json::from_value(sha_ser).unwrap();
+    assert!(matches!(ChecksumAlgorithm::SHA256, sha_deser));
+
+    let ts = ChecksumAlgorithm::Timestamp;
+    let ts_ser = serde_json::to_value(&ts).unwrap();
+    assert_eq!("timestamp", ts_ser);
+    #[allow(unused)]
+    let ts_deser: ChecksumAlgorithm = serde_json::from_value(ts_ser).unwrap();
+    assert!(matches!(ChecksumAlgorithm::Timestamp, ts_deser));
+  }
+
+  #[allow(unused)]
+  #[test]
+  fn test_invalidated_areas_serde() {
+    let str = "string".to_string();
+    let untagged = InvalidatedAreas::String(str.clone());
+    let untagged_ser = serde_json::to_value(untagged).unwrap();
+    assert_eq!(str, untagged_ser);
+    let untagged_deser: InvalidatedAreas = serde_json::from_value(untagged_ser).unwrap();
+    assert!(matches!(InvalidatedAreas::String(str), untagged_deser));
+  }
 }
