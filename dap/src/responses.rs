@@ -2,6 +2,9 @@
 use fake::Dummy;
 use serde::Serialize;
 
+#[cfg(feature = "client")]
+use serde::Deserialize;
+
 use crate::types::{
   Breakpoint, BreakpointLocation, Capabilities, CompletionItem, DataBreakpointAccessType,
   DisassembledInstruction, ExceptionBreakMode, ExceptionDetails, GotoTarget, Message, Module,
@@ -10,8 +13,9 @@ use crate::types::{
 
 /// Represents a response message that is either a cancellation or a short error string.
 #[derive(Serialize, Debug, Clone)]
-#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "client", derive(Deserialize))]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum ResponseMessage {
   /// Should be sent when the request was canceled
   Cancelled,
@@ -24,6 +28,8 @@ pub enum ResponseMessage {
 }
 
 #[derive(Serialize, Debug, Default, Clone)]
+#[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct BreakpointLocationsResponse {
   /// Sorted set of possible breakpoint locations.
@@ -31,6 +37,8 @@ pub struct BreakpointLocationsResponse {
 }
 
 #[derive(Serialize, Debug, Default, Clone)]
+#[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct CompletionsResponse {
   /// The possible completions
@@ -38,6 +46,7 @@ pub struct CompletionsResponse {
 }
 
 #[derive(Serialize, Debug, Default, Clone)]
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct ContinueResponse {
   /// The value true (or a missing property) signals to the client that all
@@ -48,6 +57,7 @@ pub struct ContinueResponse {
 
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct DataBreakpointInfoResponse {
   /// An identifier for the data on which a data breakpoint can be registered
@@ -73,6 +83,8 @@ pub struct DataBreakpointInfoResponse {
 }
 
 #[derive(Serialize, Debug, Default, Clone)]
+#[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct DisassembleResponse {
   /// The list of disassembled instructions.
@@ -80,8 +92,9 @@ pub struct DisassembleResponse {
 }
 
 #[derive(Serialize, Debug, Default, Clone)]
-#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "client", derive(Deserialize))]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct EvaluateResponse {
   /// The result of the evaluate request.
   pub result: String,
@@ -124,6 +137,7 @@ pub struct EvaluateResponse {
 
 #[derive(Serialize, Debug, Clone, Default)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct ExceptionInfoResponse {
   /// ID of the exception that was thrown.
@@ -140,6 +154,7 @@ pub struct ExceptionInfoResponse {
 
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct GotoTargetsResponse {
   /// The possible goto targets of the specified location.
@@ -148,6 +163,7 @@ pub struct GotoTargetsResponse {
 
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct LoadedSourcesResponse {
   /// Set of loaded sources.
@@ -156,6 +172,7 @@ pub struct LoadedSourcesResponse {
 
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct ModulesResponse {
   /// All modules or range of modules.
@@ -167,6 +184,7 @@ pub struct ModulesResponse {
 
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct ReadMemoryResponse {
   /// The address of the first byte of data returned.
@@ -186,6 +204,7 @@ pub struct ReadMemoryResponse {
 
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct ScopesResponse {
   /// The scopes of the stackframe. If the array has length zero, there are no
@@ -195,6 +214,7 @@ pub struct ScopesResponse {
 
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct SetBreakpointsResponse {
   /// Information about the breakpoints.
@@ -205,6 +225,7 @@ pub struct SetBreakpointsResponse {
 
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct SetDataBreakpointsResponse {
   /// Information about the breakpoints.
@@ -215,6 +236,7 @@ pub struct SetDataBreakpointsResponse {
 
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct SetExceptionBreakpointsResponse {
   /// Information about the exception breakpoints or filters.
@@ -229,6 +251,7 @@ pub struct SetExceptionBreakpointsResponse {
 
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct SetFunctionBreakpointsResponse {
   /// Information about the breakpoints. The array elements correspond to the
@@ -238,6 +261,7 @@ pub struct SetFunctionBreakpointsResponse {
 
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct SetInstructionBreakpointsResponse {
   /// Information about the breakpoints. The array elements correspond to the
@@ -247,6 +271,7 @@ pub struct SetInstructionBreakpointsResponse {
 
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct SetVariableResponse {
   /// The new value of the variable.
@@ -279,6 +304,7 @@ pub struct SetVariableResponse {
 
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct SourceResponse {
   /// Content of the source reference.
@@ -290,6 +316,7 @@ pub struct SourceResponse {
 
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct SetExpressionResponse {
   /// The new value of the expression.
@@ -327,6 +354,7 @@ pub struct SetExpressionResponse {
 
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct StackTraceResponse {
   /// The frames of the stackframe. If the array has length zero, there are no
@@ -345,6 +373,7 @@ pub struct StackTraceResponse {
 
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct ThreadsResponse {
   /// All threads.
@@ -353,6 +382,7 @@ pub struct ThreadsResponse {
 
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct VariablesResponse {
   /// All (or a range) of variables for the given variable reference.
@@ -361,6 +391,7 @@ pub struct VariablesResponse {
 
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct WriteMemoryResponse {
   /// Property that should be returned when `allowPartial` is true to indicate
@@ -376,6 +407,7 @@ pub struct WriteMemoryResponse {
 
 #[derive(Serialize, Debug, Clone)]
 #[serde(tag = "command", content = "body", rename_all = "camelCase")]
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum ResponseBody {
   /// Response to attach request. This is just an acknowledgement, so no body field is required.
@@ -603,6 +635,7 @@ pub enum ResponseBody {
 /// Specification: [Response](https://microsoft.github.io/debug-adapter-protocol/specification#Base_Protocol_Response)
 #[derive(Serialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "client", derive(Deserialize))]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct Response {
   /// Sequence number of the corresponding request.

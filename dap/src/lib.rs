@@ -100,8 +100,6 @@
 pub mod base_message;
 pub mod errors;
 pub mod events;
-#[doc(hidden)]
-mod macros;
 pub mod prelude;
 pub mod requests;
 pub mod responses;
