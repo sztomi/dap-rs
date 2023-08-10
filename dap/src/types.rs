@@ -563,53 +563,6 @@ pub struct FunctionBreakpoint {
 
 #[derive(Serialize, Debug, Clone)]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
-pub enum StopReason {
-  #[serde(rename = "step")]
-  Step,
-  #[serde(rename = "breakpoint")]
-  Breakpoint,
-  #[serde(rename = "exception")]
-  Exception,
-  #[serde(rename = "pause")]
-  Pause,
-  #[serde(rename = "entry")]
-  Entry,
-  #[serde(rename = "goto")]
-  Goto,
-  #[serde(rename = "function breakpoint")]
-  FunctionBreakpoint,
-  #[serde(rename = "data breakpoint")]
-  DataBreakpoint,
-  #[serde(rename = "instruction breakpoint")]
-  InstructionBreakpoint,
-}
-
-impl FromStr for StopReason {
-  type Err = DeserializationError;
-
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s {
-      "step" => Ok(StopReason::Step),
-      "breakpoint" => Ok(StopReason::Breakpoint),
-      "exception" => Ok(StopReason::Exception),
-      "pause" => Ok(StopReason::Pause),
-      "entry" => Ok(StopReason::Entry),
-      "goto" => Ok(StopReason::Goto),
-      "function breakpoint" => Ok(StopReason::FunctionBreakpoint),
-      "data breakpoint" => Ok(StopReason::DataBreakpoint),
-      "instruction breakpoint" => Ok(StopReason::InstructionBreakpoint),
-      other => Err(DeserializationError::StringToEnumParseError {
-        enum_name: "StopReason".to_string(),
-        value: other.to_string(),
-      }),
-    }
-  }
-}
-
-fromstr_deser! { StopReason }
-
-#[derive(Serialize, Debug, Clone)]
-#[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub enum BreakpointEventReason {
   #[serde(rename = "changed")]
   Changed,
