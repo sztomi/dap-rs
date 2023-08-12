@@ -233,8 +233,9 @@ pub struct ContinueArguments {
 pub struct DataBreakpointInfoArguments {
   /// Reference to the variable container if the data breakpoint is requested for
   /// a child of the container. The `variablesReference` must have been obtained
-  /// in the current suspended state. See 'Lifetime of Object References' in the
-  /// Overview section for details.
+  /// in the current suspended state.
+  /// See [Lifetime of Object References](https://microsoft.github.io/debug-adapter-protocol/overview#lifetime-of-objects-references)
+  /// in the Overview section of the specification for details.
   pub variables_reference: Option<i64>,
   /// The name of the variable's child to obtain data breakpoint information for.
   /// If `variablesReference` isn't specified, this can be an expression.
@@ -469,6 +470,8 @@ pub struct SetInstructionBreakpointsArguments {
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 pub struct SetVariableArguments {
   /// The reference of the variable container.
+  /// See [Lifetime of Object References](https://microsoft.github.io/debug-adapter-protocol/overview#lifetime-of-objects-references)
+  /// in the Overview section of the specification for details.
   pub variables_reference: i64,
   /// The name of the variable in the container.
   pub name: String,
@@ -581,7 +584,10 @@ pub struct TerminateThreadsArguments {
 #[derive(Deserialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 pub struct VariablesArguments {
-  /// The Variable reference.
+  /// The variable for which to retrieve its children. The `variablesReference`
+  /// must have been obtained in the current suspended state.
+  /// See [Lifetime of Object References](https://microsoft.github.io/debug-adapter-protocol/overview#lifetime-of-objects-references)
+  /// in the Overview section of the specification for details.
   pub variables_reference: i64,
   /// Filter to limit the child variables to either named or indexed. If omitted,
   /// both types are fetched.
