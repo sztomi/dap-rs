@@ -98,6 +98,8 @@ pub struct EvaluateResponse {
   /// children can be retrieved by passing `variablesReference` to the
   /// `variables` request.
   /// The value should be less than or equal to 2147483647 (2^31-1).
+  /// See [Lifetime of Object References](https://microsoft.github.io/debug-adapter-protocol/overview#lifetime-of-objects-references)
+  /// in the Overview section of the specification for details.
   pub variables_reference: i64,
   /// The i64 of named child variables.
   /// The client can use this information to present the variables in a paged
@@ -257,6 +259,8 @@ pub struct SetVariableResponse {
   /// children can be retrieved by passing `variablesReference` to the
   /// `variables` request.
   /// The value should be less than or equal to 2147483647 (2^31-1).
+  /// See [Lifetime of Object References](https://microsoft.github.io/debug-adapter-protocol/overview#lifetime-of-objects-references)
+  /// in the Overview section of the specification for details.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub variables_reference: Option<i64>,
   /// The i64 of named child variables.
@@ -303,6 +307,8 @@ pub struct SetExpressionResponse {
   /// can be retrieved by passing `variablesReference` to the `variables`
   /// request.
   /// The value should be less than or equal to 2147483647 (2^31-1).
+  /// See [Lifetime of Object References](https://microsoft.github.io/debug-adapter-protocol/overview#lifetime-of-objects-references)
+  /// in the Overview section of the specification for details.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub variables_reference: Option<i64>,
   /// The i64 of named child variables.

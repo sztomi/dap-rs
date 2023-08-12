@@ -1768,7 +1768,9 @@ pub struct Scope {
   #[serde(skip_serializing_if = "Option::is_none")]
   pub presentation_hint: Option<ScopePresentationhint>,
   /// The variables of this scope can be retrieved by passing the value of
-  /// `variablesReference` to the `variables` request.
+  /// `variablesReference` to the `variables` request as long as execution
+  /// remains suspended. See [Lifetime of Object References](https://microsoft.github.io/debug-adapter-protocol/overview#lifetime-of-objects-references)
+  /// in the Overview section of the specification for details.
   pub variables_reference: i64,
   /// The i64 of named variables in this scope.
   /// The client can use this information to present the variables in a paged UI
@@ -1982,8 +1984,9 @@ pub struct Variable {
   #[serde(skip_serializing_if = "Option::is_none")]
   pub evaluate_name: Option<String>,
   /// If `variablesReference` is > 0, the variable is structured and its children
-  /// can be retrieved by passing `variablesReference` to the `variables`
-  /// request.
+  /// can be retrieved by passing `variablesReference` to the `variables` request
+  /// as long as execution remains suspended. See [Lifetime of Object References](https://microsoft.github.io/debug-adapter-protocol/overview#lifetime-of-objects-references)
+  /// in the Overview section of the specification for details.
   pub variables_reference: i64,
   /// The i64 of named child variables.
   /// The client can use this information to present the children in a paged UI
