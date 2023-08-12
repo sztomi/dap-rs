@@ -232,11 +232,17 @@ pub struct ContinueArguments {
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 pub struct DataBreakpointInfoArguments {
   /// Reference to the variable container if the data breakpoint is requested for
-  /// a child of the container.
+  /// a child of the container. The `variablesReference` must have been obtained
+  /// in the current suspended state. See 'Lifetime of Object References' in the
+  /// Overview section for details.
   pub variables_reference: Option<i64>,
   /// The name of the variable's child to obtain data breakpoint information for.
   /// If `variablesReference` isn't specified, this can be an expression.
   pub name: String,
+  /// When `name` is an expression, evaluate it in the scope of this stack frame.
+  /// If not specified, the expression is evaluated in the global scope. When
+  /// `variablesReference` is specified, this property has no effect.
+  pub frame_id: Option<i64>,
 }
 
 //// Arguments for a Disassemble request.
