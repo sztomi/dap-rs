@@ -89,3 +89,5 @@ pub mod responses;
 pub mod reverse_requests;
 pub mod server;
 pub mod types;
+pub mod utils;
+pub use utils::get_spec_version;
