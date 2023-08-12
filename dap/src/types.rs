@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::convert::Infallible;
 use std::str::FromStr;
 
@@ -2105,3 +2106,34 @@ impl ToString for StartDebuggingRequestKind {
 
 fromstr_deser! { StartDebuggingRequestKind }
 tostr_ser! { StartDebuggingRequestKind }
+
+/// A structured message object. Used to return errors from requests.
+///
+/// Specification: [Message](https://microsoft.github.io/debug-adapter-protocol/specification#Types_Message)
+#[derive(Serialize, Debug, Default, Clone)]
+#[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "integration_testing", derive(Dummy))]
+pub struct Message {
+  /// Unique (within a debug adapter implementation) identifier for the message.
+  /// The purpose of these error IDs is to help extension authors that have the
+  /// requirement that every user visible error message needs a corresponding
+  /// error i64, so that users or customer support can find information about
+  /// the specific error more easily.
+  pub id: i64,
+  /// A format String for the message. Embedded variables have the form `{name}`.
+  /// If variable name starts with an underscore character, the variable does not
+  /// contain user data (PII) and can be safely used for telemetry purposes.
+  pub format: String,
+  /// An object used as a dictionary for looking up the variables in the format string.
+  pub variables: HashMap<String, String>,
+  /// An object used as a dictionary for looking up the variables in the format
+  /// String.
+  /// If true send to telemetry.
+  pub send_telemetry: Option<bool>,
+  /// If true show user.
+  pub show_user: Option<bool>,
+  /// A url where additional information about this message can be found.
+  pub url: Option<String>,
+  /// A label that is presented to the user as the UI for opening the url.
+  pub url_label: Option<String>,
+}
