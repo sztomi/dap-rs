@@ -987,6 +987,7 @@ impl Request {
       success: true,
       message: None,
       body: Some(body), // to love
+      error: None,
     }
   }
 
@@ -1003,6 +1004,7 @@ impl Request {
       success: false,
       message: Some(ResponseMessage::Error(error.to_string())),
       body: None,
+      error: None,
     }
   }
 
@@ -1015,6 +1017,7 @@ impl Request {
       success: false,
       message: Some(ResponseMessage::Cancelled),
       body: None,
+      error: None,
     }
   }
 
@@ -1027,90 +1030,105 @@ impl Request {
         success: true,
         message: None,
         body: Some(ResponseBody::Attach),
+        error: None,
       }),
       Command::ConfigurationDone => Ok(Response {
         request_seq: self.seq,
         success: true,
         message: None,
         body: Some(ResponseBody::ConfigurationDone),
+        error: None,
       }),
       Command::Disconnect(_) => Ok(Response {
         request_seq: self.seq,
         success: true,
         message: None,
         body: Some(ResponseBody::Disconnect),
+        error: None,
       }),
       Command::Goto(_) => Ok(Response {
         request_seq: self.seq,
         success: true,
         message: None,
         body: Some(ResponseBody::Goto),
+        error: None,
       }),
       Command::Launch(_) => Ok(Response {
         request_seq: self.seq,
         success: true,
         message: None,
         body: Some(ResponseBody::Launch),
+        error: None,
       }),
       Command::Next(_) => Ok(Response {
         request_seq: self.seq,
         success: true,
         message: None,
         body: Some(ResponseBody::Next),
+        error: None,
       }),
       Command::Pause(_) => Ok(Response {
         request_seq: self.seq,
         success: true,
         message: None,
         body: Some(ResponseBody::Pause),
+        error: None,
       }),
       Command::Restart(_) => Ok(Response {
         request_seq: self.seq,
         success: true,
         message: None,
         body: Some(ResponseBody::Next),
+        error: None,
       }),
       Command::RestartFrame(_) => Ok(Response {
         request_seq: self.seq,
         success: true,
         message: None,
         body: Some(ResponseBody::RestartFrame),
+        error: None,
       }),
       Command::ReverseContinue(_) => Ok(Response {
         request_seq: self.seq,
         success: true,
         message: None,
         body: Some(ResponseBody::ReverseContinue),
+        error: None,
       }),
       Command::StepBack(_) => Ok(Response {
         request_seq: self.seq,
         success: true,
         message: None,
         body: Some(ResponseBody::StepBack),
+        error: None,
       }),
       Command::StepIn(_) => Ok(Response {
         request_seq: self.seq,
         success: true,
         message: None,
         body: Some(ResponseBody::StepIn),
+        error: None,
       }),
       Command::StepOut(_) => Ok(Response {
         request_seq: self.seq,
         success: true,
         message: None,
         body: Some(ResponseBody::StepOut),
+        error: None,
       }),
       Command::Terminate(_) => Ok(Response {
         request_seq: self.seq,
         success: true,
         message: None,
         body: Some(ResponseBody::Terminate),
+        error: None,
       }),
       Command::TerminateThreads(_) => Ok(Response {
         request_seq: self.seq,
         success: true,
         message: None,
         body: Some(ResponseBody::TerminateThreads),
+        error: None,
       }),
       _ => Err(ServerError::ResponseConstructError),
     }

@@ -27,14 +27,17 @@ fn main() -> DynResult<()> {
   let ast = parse_file(&dap_src.join("responses.rs"))?;
   let resp_to_body_ty = HashMap::from([("Initialize".to_string(), "Capabilities")]);
 
-  // These responses are skipped because the schema for Source (which they contain) is
-  // self-referential and we can't load that the way we're doing it now (by manually dereferencing
-  // the $ref's in the schema).
-  // This is something that jsonschema should explicitly develop support for.
-  let skipped_responses: HashSet<_> = ["LoadedSources", "Scopes"]
-    .iter()
-    .map(|s| s.to_string())
-    .collect();
+  let skipped_responses: HashSet<_> = [
+    // These responses are skipped because the schema for Source (which they contain) is
+    // self-referential and we can't load that the way we're doing it now (by manually dereferencing
+    // the $ref's in the schema).
+    // This is something that jsonschema should explicitly develop support for.
+    "LoadedSources",
+    "Scopes",
+  ]
+  .iter()
+  .map(|s| s.to_string())
+  .collect();
 
   for item in ast.items {
     if let syn::Item::Enum(e) = item {
@@ -77,6 +80,7 @@ fn main() -> DynResult<()> {
               success: true,
               message: None,
               body: Some(ResponseBody::#ident #init_part),
+              error: None,
             };
             let instance = resp_to_value(&resp);
             let result = compiled.validate(&instance);
@@ -133,6 +137,7 @@ fn main() -> DynResult<()> {
               success: true,
               message: None,
               body: Some(ResponseBody::#ident #init_part),
+              error: None,
             };
             let instance = resp_to_value(&resp);
             let result = compiled.validate(&instance);
