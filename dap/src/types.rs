@@ -1620,14 +1620,45 @@ tostr_ser! { VariablePresentationHintVisibility }
 pub struct VariablePresentationHint {
   /// The kind of variable. Before introducing additional values, try to use the
   /// listed values.
+  /// Values:
+  /// 'property': Indicates that the object is a property.
+  /// 'method': Indicates that the object is a method.
+  /// 'class': Indicates that the object is a class.
+  /// 'data': Indicates that the object is data.
+  /// 'event': Indicates that the object is an event.
+  /// 'baseClass': Indicates that the object is a base class.
+  /// 'innerClass': Indicates that the object is an inner class.
+  /// 'interface': Indicates that the object is an interface.
+  /// 'mostDerivedClass': Indicates that the object is the most derived class.
+  /// 'virtual': Indicates that the object is virtual, that means it is a
+  /// synthetic object introduced by the adapter for rendering purposes, e.g. an
+  /// index range for large arrays.
+  /// 'dataBreakpoint': Deprecated: Indicates that a data breakpoint is
+  /// registered for the object. The `hasDataBreakpoint` attribute should
+  /// generally be used instead.
+  /// etc.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub kind: Option<VariablePresentationHintKind>,
   /// Set of attributes represented as an array of Strings. Before introducing
   /// additional values, try to use the listed values.
+  /// Values:
+  /// 'static': Indicates that the object is static.
+  /// 'constant': Indicates that the object is a constant.
+  /// 'readOnly': Indicates that the object is read only.
+  /// 'rawString': Indicates that the object is a raw String.
+  /// 'hasObjectId': Indicates that the object can have an Object ID created for
+  /// it.
+  /// 'canHaveObjectId': Indicates that the object has an Object ID associated
+  /// with it.
+  /// 'hasSideEffects': Indicates that the evaluation had side effects.
+  /// 'hasDataBreakpoint': Indicates that the object has its value tracked by a
+  /// data breakpoint.
+  /// etc.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub attributes: Option<Vec<VariablePresentationHintAttributes>>,
   /// Visibility of variable. Before introducing additional values, try to use
   /// the listed values.
+  /// Values: 'public', 'private', 'protected', 'internal', 'final', etc.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub visibility: Option<VariablePresentationHintVisibility>,
   /// If true, clients can present the variable with a UI that supports a
