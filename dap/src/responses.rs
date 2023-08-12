@@ -52,7 +52,12 @@ pub struct ContinueResponse {
 pub struct DataBreakpointInfoResponse {
   /// An identifier for the data on which a data breakpoint can be registered
   /// with the `setDataBreakpoints` request or null if no data breakpoint is
-  /// available.
+  /// available. If a `variablesReference` or `frameId` is passed, the `dataId`
+  /// is valid in the current suspended state, otherwise it's valid
+  /// indefinitely. See 'Lifetime of Object References' in the Overview section
+  /// for details. Breakpoints set using the `dataId` in the
+  /// `setDataBreakpoints` request may outlive the lifetime of the associated
+  /// `dataId`.
   pub data_id: Option<String>,
   /// UI String that describes on what data the breakpoint is set on or why a
   /// data breakpoint is not available.
