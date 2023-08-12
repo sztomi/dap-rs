@@ -4,8 +4,8 @@ use serde::Serialize;
 
 use crate::types::{
   Breakpoint, BreakpointLocation, Capabilities, CompletionItem, DataBreakpointAccessType,
-  DisassembledInstruction, ExceptionBreakMode, ExceptionDetails, GotoTarget, Module, Scope, Source,
-  StackFrame, Thread, Variable, VariablePresentationHint,
+  DisassembledInstruction, ExceptionBreakMode, ExceptionDetails, GotoTarget, Message, Module,
+  Scope, Source, StackFrame, Thread, Variable, VariablePresentationHint,
 };
 
 /// Represents a response message that is either a cancellation or a short error string.
@@ -628,6 +628,8 @@ pub struct Response {
   /// false.
   #[serde(flatten, skip_serializing_if = "Option::is_none")]
   pub body: Option<ResponseBody>,
+  /// A structured error message.
+  pub error: Option<Message>,
 }
 
 #[cfg(test)]
@@ -641,6 +643,7 @@ mod test {
       success: false,
       message: Some(ResponseMessage::Error("test".to_string())),
       body: None,
+      error: None,
     };
     let val = serde_json::to_value(a).unwrap();
 
@@ -653,6 +656,7 @@ mod test {
       success: false,
       message: Some(ResponseMessage::Cancelled),
       body: None,
+      error: None,
     };
     let val = serde_json::to_value(a).unwrap();
     assert!(val.get("message").unwrap().is_string());
@@ -663,6 +667,7 @@ mod test {
       success: false,
       message: Some(ResponseMessage::NotStopped),
       body: None,
+      error: None,
     };
     let val = serde_json::to_value(a).unwrap();
     assert!(val.get("message").unwrap().is_string());
