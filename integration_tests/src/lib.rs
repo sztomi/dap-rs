@@ -179,7 +179,7 @@ mod integration_tests {
 
   pub fn get_schema(item: &str) -> Value {
     let schema =
-      include_str!("../b01a8da52b83850c1a35e024bca09f7b285ac109_debugAdapterProtocol.json");
+      include_str!("../7f284b169ecd19602487eb4d290ae651d4398ce7_debugAdapterProtocol.json");
     let schema: Value = serde_json::from_str(schema).unwrap();
     let mut refs = HashSet::new();
 

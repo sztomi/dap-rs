@@ -28,9 +28,10 @@ impl Display for Version {
 }
 
 /// Returns the version of the DAP specification that this crate implements.
+///
 /// Please note that historically, the DAP changelog hasn't been super accurate and the
 /// versions (as of 1.62.x) are not tagged in the DAP repo. Until that changes, we are
-/// using the commit that adds the last changelog entry for a given version.
+/// using the commit that *adds the corresponding JSON-schema in the **gh-pages** branch*.
 pub fn get_spec_version() -> Version {
   Version {
     major: 1,
