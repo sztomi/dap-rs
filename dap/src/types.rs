@@ -994,9 +994,6 @@ pub struct ValueFormat {
 #[derive(Deserialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 pub struct StackFrameFormat {
-  /// Display the value in hex.
-  #[serde(skip_serializing_if = "Option::is_none")]
-  pub hex: Option<bool>,
   /// Displays parameters for the stack frame.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub parameters: Option<bool>,
