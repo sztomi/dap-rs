@@ -51,9 +51,9 @@ pub struct InitializeArguments {
   pub adapter_id: String,
   /// The ISO-639 locale of the client using this adapter, e.g. en-US or de-CH.
   pub locale: Option<String>,
-  /// If true all line numbers are 1-based (default).
+  /// If true all line i64s are 1-based (default).
   pub lines_start_at1: Option<bool>,
-  /// If true all column numbers are 1-based (default).
+  /// If true all column i64s are 1-based (default).
   pub columns_start_at1: Option<bool>,
   /// Determines in what format paths are specified. The default is `path`, which
   /// is the native format.
@@ -74,6 +74,8 @@ pub struct InitializeArguments {
   pub supports_memory_event: Option<bool>,
   /// Client supports the `argsCanBeInterpretedByShell` attribute on the `runInTerminal` request.
   pub supports_args_can_be_interpreted_by_shell: Option<bool>,
+  /// Client supports the `startDebugging` request.
+  pub supports_start_debugging_request: Option<bool>,
 }
 
 //// Arguments for an SetBreakpoints request.
