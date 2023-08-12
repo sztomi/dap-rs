@@ -130,7 +130,7 @@ pub struct Capabilities {
   #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_conditional_breakpoints: Option<bool>,
   /// The debug adapter supports breakpoints that break execution after a
-  /// specified number of hits.
+  /// specified i64 of hits.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_hit_conditional_breakpoints: Option<bool>,
   /// The debug adapter supports a (side effect free) `evaluate` request for data
@@ -168,7 +168,8 @@ pub struct Capabilities {
   #[serde(skip_serializing_if = "Option::is_none")]
   pub supports_modules_request: Option<bool>,
   /// The set of additional module information exposed by the debug adapter.
-  pub additional_module_columns: Vec<ColumnDescriptor>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub additional_module_columns: Option<Vec<ColumnDescriptor>>,
   /// Checksum algorithms supported by the debug adapter.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub supported_checksum_algorithms: Option<Vec<ChecksumAlgorithm>>,
