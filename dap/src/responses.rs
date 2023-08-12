@@ -263,18 +263,18 @@ pub struct SetVariableResponse {
   /// in the Overview section of the specification for details.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub variables_reference: Option<i64>,
-  /// The i64 of named child variables.
+  /// The number of named child variables.
   /// The client can use this information to present the variables in a paged
   /// UI and fetch them in chunks.
   /// The value should be less than or equal to 2147483647 (2^31-1).
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub named_variables: Option<i64>,
-  /// The i64 of indexed child variables.
+  pub named_variables: Option<i32>,
+  /// The number of indexed child variables.
   /// The client can use this information to present the variables in a paged
   /// UI and fetch them in chunks.
   /// The value should be less than or equal to 2147483647 (2^31-1).
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub indexed_variables: Option<i64>,
+  pub indexed_variables: Option<i32>,
 }
 
 #[derive(Serialize, Debug, Default, Clone)]
