@@ -168,6 +168,26 @@ pub struct AttachRequestArguments {
   pub additional_data: Option<Value>,
 }
 
+//// Union of Attach and Launch arguments for the Restart request.
+//// Currently the same as LaunchRequestArguments but might not be in the future.
+#[derive(Deserialize, Debug, Default, Clone)]
+#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
+pub struct AttachOrLaunchArguments {
+  /// If true, the launch request should launch the program without enabling
+  /// debugging.
+  pub no_debug: Option<bool>,
+
+  /// Arbitrary data from the previous, restarted session.
+  /// The data is sent as the `restart` attribute of the `terminated` event.
+  /// The client should leave the data intact.
+  #[serde(rename = "__restart")]
+  pub restart_data: Option<Value>,
+
+  /// The request may include additional implementation specific attributes.
+  #[serde(flatten)]
+  pub additional_data: Option<Value>,
+}
+
 //// Arguments for a BreakpointLocations request.
 #[derive(Deserialize, Debug, Default, Clone)]
 #[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
@@ -388,11 +408,10 @@ pub struct ReadMemoryArguments {
   pub count: i64,
 }
 
-/// Arguments for a ReadMemory request.
+/// Arguments for a Restart request.
 #[derive(Deserialize, Debug, Clone)]
-pub enum RestartArguments {
-  AttachArguments(AttachRequestArguments),
-  LaunchArguments(LaunchRequestArguments),
+pub struct RestartArguments {
+  pub arguments: Option<AttachOrLaunchArguments>,
 }
 
 /// Arguments for a RestartFrame request.
