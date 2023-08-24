@@ -33,4 +33,7 @@ pub enum ServerError {
 
   #[error("Trying to construct a non-sense response (such as an ACK for a request that requires a response body")]
   ResponseConstructError,
+
+  #[error("Output lock is poisoned")]
+  OutputLockError,
 }

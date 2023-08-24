@@ -119,7 +119,10 @@ impl<R: Read, W: Write> Server<R, W> {
   }
 
   pub fn send(&mut self, body: Sendable) -> Result<(), ServerError> {
-    let mut output = self.output.lock().unwrap();
+    let mut output = self
+      .output
+      .lock()
+      .map_err(|_| ServerError::OutputLockError)?;
     output.send(body)
   }
 
