@@ -38,5 +38,24 @@ fn main() -> DynResult<()> {
   } else {
     return Err(Box::new(MyAdapterError::UnhandledCommandError));
   }
+
+  // You can send events from other threads while the server is blocked
+  // polling for requests by grabbing a `ServerOutput` mutex:
+  let server_output = server.output.clone();
+  std::thread::spawn(move || {
+    std::thread::sleep(std::time::Duration::from_millis(500));
+
+    let mut server_output = server_output.lock().unwrap();
+    server_output
+      .send_event(Event::Capabilities(events::CapabilitiesEventBody {
+        ..Default::default()
+      }))
+      .unwrap();
+  });
+
+  // The thread will concurrently send an event while we are polling
+  // for the next request
+  let _ = server.poll_request()?;
+
   Ok(())
 }
