@@ -9,8 +9,8 @@ dap = { path = "../dap", features = ["integration_testing"] }
 jsonschema = "0.*"
 serde = { version = "1.*", features = ["derive"] }
 serde_json = "1.*"
-fake = "*"
-rand = "*"
+fake = "2.*"
+rand = "0.*"
 
 [build-dependencies]
 quote = "1.*"
