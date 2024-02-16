@@ -169,8 +169,8 @@ pub struct AttachRequestArguments {
 //// Union of Attach and Launch arguments for the Restart request.
 //// Currently the same as LaunchRequestArguments but might not be in the future.
 #[derive(Deserialize, Debug, Default, Clone)]
-#[serde(rename_all(deserialize = "camelCase", serialize = "snake_case"))]
 #[cfg_attr(feature = "client", derive(Serialize))]
+#[serde(rename_all = "camelCase")]
 pub struct AttachOrLaunchArguments {
   /// If true, the launch request should launch the program without enabling
   /// debugging.
