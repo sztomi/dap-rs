@@ -431,6 +431,7 @@ pub struct ReadMemoryArguments {
 /// Arguments for a ReadMemory request.
 #[derive(Deserialize, Debug, Clone)]
 #[cfg_attr(feature = "client", derive(Serialize))]
+#[serde(rename_all = "camelCase")]
 pub struct RestartArguments {
   pub arguments: Option<AttachOrLaunchArguments>,
 }
