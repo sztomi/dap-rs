@@ -219,7 +219,7 @@ pub struct Capabilities {
 }
 
 #[derive(Deserialize, Serialize, Debug, Default, Clone)]
-pub struct CustomValue(Value);
+pub struct CustomValue(pub Value);
 
 #[cfg(feature = "integration_testing")]
 struct ValueFaker;
