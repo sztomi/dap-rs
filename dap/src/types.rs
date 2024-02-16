@@ -9,6 +9,7 @@ use fake::{Dummy, Fake, Faker};
 use rand::Rng;
 
 #[derive(Deserialize, Serialize, Debug, Default, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct ExceptionBreakpointsFilter {
   /// The internal ID of the filter option. This value is passed to the
@@ -242,6 +243,7 @@ impl Dummy<ValueFaker> for CustomValue {
 ///
 /// Specification: [Source](https://microsoft.github.io/debug-adapter-protocol/specification#Types_Source)
 #[derive(Deserialize, Serialize, Debug, Default, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct Source {
   /// The short name of the source. Every source returned from the debug adapter
@@ -286,6 +288,7 @@ pub struct Source {
 }
 
 #[derive(Deserialize, Serialize, Debug, Default, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct SourceBreakpoint {
   /// The source line of the breakpoint or logpoint.
@@ -318,6 +321,7 @@ pub struct SourceBreakpoint {
 /// Information about a breakpoint created in setBreakpoints, setFunctionBreakpoints,
 /// setInstructionBreakpoints, or setDataBreakpoints requests.
 #[derive(Deserialize, Serialize, Debug, Default, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct Breakpoint {
   /// The identifier for the breakpoint. It is needed if breakpoint events are
@@ -372,6 +376,7 @@ pub enum PresentationHint {
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct Checksum {
   /// The algorithm used to calculate this checksum.

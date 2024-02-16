@@ -46,12 +46,14 @@ pub struct CompletionsResponse {
 }
 
 #[derive(Serialize, Debug, Default, Clone)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "client", derive(Deserialize))]
 #[cfg_attr(feature = "integration_testing", derive(Dummy))]
 pub struct ContinueResponse {
   /// The value true (or a missing property) signals to the client that all
   /// threads have been resumed. The value false indicates that not all threads
   /// were resumed.
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub all_threads_continued: Option<bool>,
 }
 
