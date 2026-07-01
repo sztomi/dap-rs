@@ -156,7 +156,7 @@ impl<W: Write> ServerOutput<W> {
     )
     .map_err(ServerError::IoError)?;
 
-    write!(self.output_buffer, "{}\r\n", resp_json).map_err(ServerError::IoError)?;
+    write!(self.output_buffer, "{}", resp_json).map_err(ServerError::IoError)?;
     self.output_buffer.flush().map_err(ServerError::IoError)?;
     Ok(())
   }
