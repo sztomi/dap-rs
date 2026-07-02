@@ -627,6 +627,14 @@ pub struct TerminateThreadsArguments {
   pub thread_ids: Option<Vec<i64>>,
 }
 
+/// Arguments placeholder to allow deserializing requests with non existing arguments field
+/// as well as requests with arguments field with an empty object
+#[cfg_attr(feature = "client", derive(Serialize))]
+#[derive(Deserialize, Debug, Default, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct EmptyArguments {
+}
+
 /// Arguments for a Variables request.
 #[cfg_attr(feature = "client", derive(Serialize))]
 #[derive(Deserialize, Debug, Default, Clone)]
@@ -703,7 +711,7 @@ pub enum Command {
   /// Clients should only call this request if the corresponding capability supportsConfigurationDoneRequest is true.
   ///
   /// Specification: [ConfigurationDone](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_ConfigurationDone)
-  ConfigurationDone,
+  ConfigurationDone(Option<EmptyArguments>),
   /// The request resumes execution of all threads. If the debug adapter supports single thread
   /// execution (see capability `supportsSingleThreadExecutionRequests`), setting the singleThread
   /// argument to true resumes only the specified thread. If not all threads were resumed, the
@@ -788,7 +796,7 @@ pub enum Command {
   /// Clients should only call this request if the corresponding capability supportsLoadedSourcesRequest is true.
   ///
   /// Specification: [LoadedSources request](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_LoadedSources)
-  LoadedSources,
+  LoadedSources(Option<EmptyArguments>),
   /// Modules can be retrieved from the debug adapter with this request which can either return
   /// all modules or a range of modules to support paging.
   /// Clients should only call this request if the corresponding capability
@@ -972,7 +980,7 @@ pub enum Command {
   /// The request retrieves a list of all threads.
   ///
   /// Specification: [Threads request](https://microsoft.github.io/debug-adapter-protocol/specification#Requests_Threads)
-  Threads,
+  Threads(Option<EmptyArguments>),
   /// Retrieves all child variables for the given variable reference.
   /// A filter can be used to limit the fetched children to either named or indexed children.
   ///
@@ -1079,7 +1087,7 @@ impl Request {
         body: Some(ResponseBody::Attach),
         error: None,
       }),
-      Command::ConfigurationDone => Ok(Response {
+      Command::ConfigurationDone(_) => Ok(Response {
         request_seq: self.seq,
         success: true,
         message: None,
